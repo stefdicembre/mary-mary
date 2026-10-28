@@ -9,6 +9,13 @@ export type Route =
   | { page: "settings" }
   | { page: "lost" }
   | { page: "weather" }
+  | { page: "jobs" }
+  | { page: "newJob" }
+  | { page: "didJob" }
+  | { page: "diary"; areaId?: string; plantId?: string }
+  | { page: "diaryNew"; areaId?: string; plantId?: string; taskId?: string }
+  | { page: "diaryEntry"; id: string }
+  | { page: "diaryEdit"; id: string }
   | { page: "plan"; areaId: string }
   | { page: "newArea" }
   | { page: "area"; id: string }
@@ -20,8 +27,23 @@ export type Route =
 
 export function parse(hash: string): Route {
   const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
-  const [a, b, c] = parts;
+  const [a, b, c, d] = parts;
   switch (a) {
+    case "jobs":
+      if (b === "new") return { page: "newJob" };
+      if (b === "did") return { page: "didJob" };
+      return { page: "jobs" };
+    case "diary":
+      if (b === "area" && c) return { page: "diary", areaId: c };
+      if (b === "plant" && c) return { page: "diary", plantId: c };
+      if (b === "entry" && c) return d === "edit" ? { page: "diaryEdit", id: c } : { page: "diaryEntry", id: c };
+      if (b === "new") {
+        if (c === "area" && d) return { page: "diaryNew", areaId: d };
+        if (c === "plant" && d) return { page: "diaryNew", plantId: d };
+        if (c === "task" && d) return { page: "diaryNew", taskId: d };
+        return { page: "diaryNew" };
+      }
+      return { page: "diary" };
     case "menu":
       return { page: "menu" };
     case "settings":
@@ -59,6 +81,25 @@ export function href(r: Route): string {
       return "#/lost";
     case "weather":
       return "#/weather";
+    case "jobs":
+      return "#/jobs";
+    case "newJob":
+      return "#/jobs/new";
+    case "didJob":
+      return "#/jobs/did";
+    case "diary":
+      if (r.areaId) return `#/diary/area/${encodeURIComponent(r.areaId)}`;
+      if (r.plantId) return `#/diary/plant/${encodeURIComponent(r.plantId)}`;
+      return "#/diary";
+    case "diaryNew":
+      if (r.areaId) return `#/diary/new/area/${encodeURIComponent(r.areaId)}`;
+      if (r.plantId) return `#/diary/new/plant/${encodeURIComponent(r.plantId)}`;
+      if (r.taskId) return `#/diary/new/task/${encodeURIComponent(r.taskId)}`;
+      return "#/diary/new";
+    case "diaryEntry":
+      return `#/diary/entry/${encodeURIComponent(r.id)}`;
+    case "diaryEdit":
+      return `#/diary/entry/${encodeURIComponent(r.id)}/edit`;
     case "plan":
       return `#/area/${encodeURIComponent(r.areaId)}/plan`;
     case "newArea":

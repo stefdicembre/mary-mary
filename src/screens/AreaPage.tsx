@@ -61,6 +61,10 @@ export function AreaPage({ id }: { id: string }) {
         <AreaIcon kind={area.kind} size={84} />
       </div>
 
+      <a href={href({ page: "diary", areaId: id })} className="back" style={{ alignSelf: "flex-start", marginTop: -8, fontWeight: 600, padding: 0 }}>
+        See this area's diary ({garden.journal.filter((j) => j.areaIds.includes(id) || j.plantIds.some((pid) => garden.plants.find((p) => p.id === pid)?.areaId === id)).length})
+      </a>
+
       <div className="stack-sm">
         <h1>{area.name}</h1>
         <p className="sub">

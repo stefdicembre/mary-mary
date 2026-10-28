@@ -4,7 +4,7 @@
 
 import { newId } from "./data";
 import { setbackSummary } from "./reasons";
-import type { Area, GardenData, GardenSettings, Plant, ReasonKey, Setback, SetbackOutcome } from "./types";
+import type { Area, GardenData, GardenSettings, JournalEntry, Plant, ReasonKey, Setback, SetbackOutcome } from "./types";
 
 export function addArea(g: GardenData, a: Omit<Area, "id" | "createdAt">): [GardenData, string] {
   const id = newId("area");
@@ -160,4 +160,59 @@ export function notForMe(g: GardenData, areaId: string, catalogueId: string, und
   const key = `${areaId}:${catalogueId}`;
   const list = g.notForMe.filter((k) => k !== key);
   return { ...g, notForMe: undo ? list : [...list, key] };
+}
+
+// ── Garden diary ─────────────────────────────────────────────────
+
+export function addEntry(g: GardenData, e: Omit<JournalEntry, "id">): [GardenData, string] {
+  const id = newId("diary");
+  return [{ ...g, journal: [...g.journal, { ...e, id }] }, id];
+}
+
+export function updateEntry(g: GardenData, id: string, changes: Partial<JournalEntry>): GardenData {
+  return { ...g, journal: g.journal.map((j) => (j.id === id ? { ...j, ...changes, id } : j)) };
+}
+
+/** Removes a diary entry. The setback or job it came from stays. */
+export function removeEntry(g: GardenData, id: string): GardenData {
+  return {
+    ...g,
+    journal: g.journal.filter((j) => j.id !== id),
+    setbacks: g.setbacks.map((s) => (s.journalEntryId === id ? { ...s, journalEntryId: undefined } : s)),
+  };
+}
+
+export interface DiaryFilter {
+  areaId?: string;
+  plantId?: string;
+  text?: string;
+}
+
+/** Diary entries, newest first, filtered by area, plant or words (including plant and area names). */
+export function diaryEntries(g: GardenData, f: DiaryFilter = {}): JournalEntry[] {
+  const words = (f.text ?? "").toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const plantArea = (pid: string) => g.plants.find((p) => p.id === pid)?.areaId;
+  return g.journal
+    .filter((j) => !f.areaId || j.areaIds.includes(f.areaId) || j.plantIds.some((pid) => plantArea(pid) === f.areaId))
+    .filter((j) => !f.plantId || j.plantIds.includes(f.plantId))
+    .filter((j) => {
+      if (!words.length) return true;
+      const hay = [
+        j.text,
+        ...j.plantIds.map((pid) => {
+          const p = g.plants.find((x) => x.id === pid);
+          return p ? `${p.name} ${p.variety ?? ""} ${p.latinName ?? ""}` : "";
+        }),
+        ...j.areaIds.map((aid) => g.areas.find((a) => a.id === aid)?.name ?? ""),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return words.every((w) => hay.includes(w));
+    })
+    .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+}
+
+/** Every photo id the garden still refers to. */
+export function photosInUse(g: GardenData): Set<string> {
+  return new Set(g.journal.flatMap((j) => j.photoIds ?? []));
 }

@@ -29,6 +29,11 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
    - The planting plan uses a built-in UK catalogue of about 75 plants and follows aspect, colours, soil and setback lessons. It has Planned, Planted it and Not for me.
    - 22 tests pass, and an end-to-end click-through passed using a pretend forecast.
 
+8. **28 Oct: v0.2 committed and pushed by Stef.**
+9. **28 Oct: version 0.3, jobs and garden diary.**
+   - Seasonal UK job calendar matched to the garden, plus own jobs. The diary has photos, filters and search.
+   - 33 tests pass, plus an end-to-end click-through including a full-size photo.
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -49,5 +54,5 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Next steps
 
-1. Stef: commit and push v0.2, add the postcode in Settings, and set aspect and colours on each area.
-2. Then: this week's jobs (wireframe Jobs screen), the garden diary screen and supplies.
+1. Stef: commit and push v0.3.
+2. Then: supplies and the harvest log.

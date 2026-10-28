@@ -13,6 +13,8 @@ import { Lost, Menu, Settings } from "./screens/Other";
 import { WeatherScreen } from "./screens/Weather";
 import { PlanScreen } from "./screens/Plan";
 import { WeatherProvider } from "./weatherStore";
+import { DidSomethingForm, JobForm, JobsScreen } from "./screens/Jobs";
+import { DiaryEntryScreen, DiaryForm, DiaryScreen } from "./screens/Diary";
 
 function Screen() {
   const r = useRoute();
@@ -29,6 +31,20 @@ function Screen() {
       return <WeatherScreen />;
     case "plan":
       return <PlanScreen key={r.areaId} areaId={r.areaId} />;
+    case "jobs":
+      return <JobsScreen />;
+    case "newJob":
+      return <JobForm />;
+    case "didJob":
+      return <DidSomethingForm />;
+    case "diary":
+      return <DiaryScreen key={`${r.areaId}-${r.plantId}`} areaId={r.areaId} plantId={r.plantId} />;
+    case "diaryNew":
+      return <DiaryForm key={`new-${r.areaId}-${r.plantId}-${r.taskId}`} areaId={r.areaId} plantId={r.plantId} taskId={r.taskId} />;
+    case "diaryEntry":
+      return <DiaryEntryScreen key={r.id} id={r.id} />;
+    case "diaryEdit":
+      return <DiaryForm key={`edit-${r.id}`} id={r.id} />;
     case "newArea":
       return <AreaForm key="new" />;
     case "area":

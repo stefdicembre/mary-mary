@@ -141,6 +141,17 @@ export function PlantPage({ id }: { id: string }) {
         </div>
       )}
 
+      <div className="btn-row">
+        <a className="btn outline small" href={href({ page: "diaryNew", plantId: id })}>
+          + Add to the diary
+        </a>
+        {garden.journal.some((j) => j.plantIds.includes(id)) && (
+          <a className="btn quiet" href={href({ page: "diary", plantId: id })} style={{ flex: "none" }}>
+            See its diary ({garden.journal.filter((j) => j.plantIds.includes(id)).length})
+          </a>
+        )}
+      </div>
+
       <div className="stack" style={{ marginTop: 16 }}>
         {!confirmDelete ? (
           <button type="button" className="btn quiet" style={{ alignSelf: "flex-start", padding: 0 }} onClick={() => setConfirmDelete(true)}>

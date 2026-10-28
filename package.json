@@ -1,13 +1,13 @@
 {
   "name": "mary-mary",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Mary Mary: a gentle garden companion for a UK home gardener.",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --serve",
-    "test": "node --import tsx --test src/lib/logic.test.ts src/lib/weather-plan.test.ts"
+    "test": "node --import tsx --test src/lib/logic.test.ts src/lib/weather-plan.test.ts src/lib/jobs.test.ts"
   },
   "dependencies": {
     "react": "19.2.8",

@@ -74,5 +74,9 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
   - **Weather:** the postcode is looked up with postcodes.io, the forecast comes from Open-Meteo, and the last forecast is saved for offline use. Frost, heat, wind, rain and dry-spell advice. Frost warnings list tender plants (`isTender` plus past frost setbacks).
   - **Planting plan:** built-in catalogue of about 75 UK plants. Suggestions follow the area's aspect, colours, soil and setback lessons. Planned plants live on the area, "Planted it" makes them real plants, and "Not for me" is remembered.
   - Areas now have a colour scheme.
-- **Next:** jobs this week (the wireframe Jobs screen), the garden diary screen and supplies.
+- **v0.3:**
+  - **Jobs:** seasonal UK calendar (`SEASONAL` in jobs.ts, about 45 jobs) matched to plants and areas, plus own jobs, Not now (7 days), Add something I did, Done recently with Undo and "+ Diary". Home has "This week's jobs" and "One thing at a time".
+  - **Garden diary:** list by month, area chips, search, entry view, add/edit/remove, and photos (shrunk, own IndexedDB store, included in backups). Links from area, plant and jobs.
+  - Still out of scope: the "who's doing it" Stef/Cath split, which waits for sharing.
+- **Next:** supplies (wireframe Supplies screen) and the harvest log.
 - The repo is public, which is needed for free GitHub Pages. Stef places `.github/workflows` files by hand, because remote tools can't write there.

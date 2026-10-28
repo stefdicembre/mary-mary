@@ -62,6 +62,25 @@ export interface JournalEntry {
   plantIds: string[];
   areaIds: string[];
   setbackId?: string;
+  taskId?: string; // written when a job was done
+  photoIds?: string[]; // photos are kept separately on the phone (see photos.ts)
+}
+
+/** A job: one the gardener added, or a seasonal one from Mary Mary's calendar that was done. */
+export interface Task {
+  id: string;
+  title: string;
+  areaId?: string;
+  plantId?: string;
+  dueOn?: string; // YYYY-MM-DD; none = whenever
+  minutes?: number;
+  notes?: string;
+  doneOn?: string; // YYYY-MM-DD
+  /** Set when this records a seasonal job from the calendar: "<seasonal id>:<year>". */
+  seasonalKey?: string;
+  /** "Add something I did": a job that wasn't on the list. */
+  extra?: boolean;
+  createdAt: string;
 }
 
 export interface GardenSettings {
@@ -94,4 +113,7 @@ export interface GardenData {
   planned: PlannedPlant[];
   /** Suggestions the gardener said "Not for me" to, per area: "areaId:catalogueId". */
   notForMe: string[];
+  tasks: Task[];
+  /** Jobs put off with "Not now": job key → YYYY-MM-DD to show again from. */
+  snoozed: Record<string, string>;
 }

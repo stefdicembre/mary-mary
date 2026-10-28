@@ -4,6 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import type { ReactNode } from "react";
 import { emptyGarden, upgrade } from "./lib/data";
 import { askToKeepData, loadGarden, saveGarden } from "./lib/db";
+import { photosInUse } from "./lib/actions";
+import { tidyPhotos } from "./lib/photos";
 import type { GardenData } from "./lib/types";
 
 interface Toast {
@@ -38,7 +40,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     loadGarden()
-      .then((g) => setGarden(g ? upgrade(g) : emptyGarden(true)))
+      .then((g) => {
+        const garden = g ? upgrade(g) : emptyGarden(true);
+        setGarden(garden);
+        // Clear out photos from diary entries removed in an earlier session.
+        if (g) tidyPhotos(photosInUse(garden)).catch(() => undefined);
+      })
       .catch(() => setGarden(emptyGarden(true)));
     askToKeepData();
   }, []);

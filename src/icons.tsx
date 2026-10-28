@@ -47,6 +47,9 @@ export const IconLeaf = ({ size = 28, color = "#3B6D11" }: P) => (
 export const IconBook = ({ size = 22, color = "#3B6D11" }: P) => (
   <svg {...base(size, color, 1.6)}><path d="M6 4h12v16H8a2 2 0 0 1-2-2z" /><path d="M6 18a2 2 0 0 1 2-2h10" /></svg>
 );
+export const IconCheck = ({ size = 22, color = "#3B6D11" }: P) => (
+  <svg {...base(size, color, 1.8)}><rect x="4" y="4" width="16" height="16" rx="4" /><path d="M8.5 12.5l2.5 2.5 4.5-5" /></svg>
+);
 export const IconDownload = ({ size = 22, color = "#3B6D11" }: P) => (
   <svg {...base(size, color, 1.6)}><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>
 );

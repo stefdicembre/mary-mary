@@ -59,6 +59,8 @@ export function emptyGarden(withStarterAreas: boolean): GardenData {
     journal: [],
     planned: [],
     notForMe: [],
+    tasks: [],
+    snoozed: {},
   });
 }
 
@@ -68,7 +70,7 @@ export function upgrade(g: GardenData): GardenData {
   const areas = g.areas.map((a) =>
     a.colours ? a : /sunset/i.test(a.name) ? { ...a, colours: "hot" as const } : /pastel/i.test(a.name) ? { ...a, colours: "pastel" as const } : a,
   );
-  return { ...g, areas, planned: g.planned ?? [], notForMe: g.notForMe ?? [] };
+  return { ...g, areas, planned: g.planned ?? [], notForMe: g.notForMe ?? [], tasks: g.tasks ?? [], snoozed: g.snoozed ?? {} };
 }
 
 export const COLOUR_SCHEMES: Array<{ value: ColourScheme; label: string; colours: string[] }> = [

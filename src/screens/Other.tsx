@@ -4,7 +4,9 @@ import { updateSettings } from "../lib/actions";
 import { isGardenData, plantsToCSV } from "../lib/data";
 import { shortDate, todayISO } from "../lib/dates";
 import { setbackSummary } from "../lib/reasons";
-import { IconBook, IconClose, IconCog, IconDownload, IconNext, SkyIcon } from "../icons";
+import { IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconNext, SkyIcon } from "../icons";
+import { exportPhotos, importPhotos } from "../lib/photos";
+import { photosInUse } from "../lib/actions";
 import { findPlace } from "../lib/weatherApi";
 import { href } from "../router";
 import { useStore } from "../store";
@@ -34,11 +36,13 @@ export function Menu() {
       </div>
       <h1>Menu</h1>
       <div className="list">
+        {item(href({ page: "jobs" }), <IconCheck />, "Jobs", "This week's jobs, and what you've done")}
+        {item(href({ page: "diary" }), <IconBook />, "Garden diary", "See how your garden has grown")}
         {item(href({ page: "weather" }), <SkyIcon sky="partly" size={24} />, "Weather", "The week ahead, and what it means for the garden")}
-        {item(href({ page: "lost" }), <IconBook />, "Didn't make it", lostCount ? `${lostCount} ${lostCount === 1 ? "plant" : "plants"} to learn from` : "Nothing lost so far")}
+        {item(href({ page: "lost" }), <IconLeaf size={22} />, "Didn't make it", lostCount ? `${lostCount} ${lostCount === 1 ? "plant" : "plants"} to learn from` : "Nothing lost so far")}
         {item(href({ page: "settings" }), <IconCog size={22} color="#3B6D11" />, "Settings and backup", "Your garden's name, and saving a copy")}
       </div>
-      <p className="hint">Coming next: this week's jobs, the garden diary and supplies.</p>
+      <p className="hint">Coming next: supplies and the harvest log.</p>
     </>
   );
 }
@@ -191,9 +195,16 @@ export function Settings() {
         <p className="body">
           Everything is kept on this phone ({counts}). Save a backup now and then, to Files or iCloud Drive, in case the phone is lost or the app is removed.
         </p>
-        <button type="button" className="btn outline" onClick={() => saveFile(`mary-mary-backup-${stamp}.json`, "application/json", JSON.stringify(garden, null, 2))}>
+        <button
+          type="button"
+          className="btn outline"
+          onClick={async () => {
+            const photos = await exportPhotos(Array.from(photosInUse(garden))).catch(() => ({}));
+            await saveFile(`mary-mary-backup-${stamp}.json`, "application/json", JSON.stringify({ ...garden, photos }));
+          }}
+        >
           <IconDownload size={20} />
-          Save a backup
+          Save a backup{photosInUse(garden).size ? " (with photos)" : ""}
         </button>
         <button type="button" className="btn outline" onClick={() => saveFile(`mary-mary-plants-${stamp}.csv`, "text/csv", plantsToCSV(garden))}>
           <IconDownload size={20} />
@@ -236,8 +247,11 @@ export function Settings() {
                 <button
                   type="button"
                   className="btn"
-                  onClick={() => {
-                    replaceAll(pending);
+                  onClick={async () => {
+                    const photos = (pending as { photos?: Record<string, string> }).photos;
+                    if (photos) await importPhotos(photos).catch(() => undefined);
+                    const { photos: _drop, ...rest } = pending as typeof pending & { photos?: unknown };
+                    replaceAll(rest);
                     setGardenName(pending.settings.gardenName);
                     setYourName(pending.settings.yourName);
                     setPostcode(pending.settings.postcode ?? "");

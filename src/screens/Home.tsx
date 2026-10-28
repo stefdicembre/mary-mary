@@ -7,6 +7,10 @@ import { adviceFor } from "../lib/weather";
 import { todayISO } from "../lib/dates";
 import { useWeather } from "../weatherStore";
 import { UrgentCard, WeatherBadge } from "./Weather";
+import { JobRow, useJobs } from "./Jobs";
+import { completeJob, oneQuickJob } from "../lib/jobs";
+import { IconLeaf } from "../icons";
+import { useState } from "react";
 
 /** "The allotment" → "Allotment", to fit under the circle. */
 const shortName = (n: string) => {
@@ -15,7 +19,11 @@ const shortName = (n: string) => {
 };
 
 export function Home() {
-  const { garden, saveError } = useStore();
+  const { garden, saveError, update } = useStore();
+  const jobs = useJobs();
+  const [gentle, setGentle] = useState<"closed" | "open" | "done">("closed");
+  const [skipped, setSkipped] = useState<string[]>([]);
+  const quick = oneQuickJob(jobs.thisWeek, skipped);
   const { forecast, status } = useWeather();
   const urgent = forecast ? adviceFor(forecast, garden, todayISO()).filter((a) => a.urgent) : [];
   const now = new Date();
@@ -59,6 +67,76 @@ export function Home() {
           <p>Mary Mary couldn't save your last change on this phone. Try again, and save a backup from Settings.</p>
         </div>
       )}
+
+      {quick && gentle === "closed" && (
+        <div className="gentle">
+          <span className="icon" aria-hidden="true">
+            <IconLeaf size={20} />
+          </span>
+          <div className="stack-sm" style={{ flex: 1, minWidth: 0, gap: 1 }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>One thing at a time</p>
+            <p style={{ margin: 0, fontSize: 12, color: "var(--muted)" }}>One small job. No lists, no pressure.</p>
+          </div>
+          <button type="button" className="btn outline small" onClick={() => setGentle("open")}>
+            Let's go
+          </button>
+        </div>
+      )}
+      {quick && gentle === "open" && (
+        <div className="gentle" style={{ alignItems: "flex-start" }}>
+          <span className="icon" aria-hidden="true">
+            <IconLeaf size={20} />
+          </span>
+          <div className="stack-sm" style={{ flex: 1, minWidth: 0, gap: 2 }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{quick.title}</p>
+            <p style={{ margin: 0, fontSize: 12, color: "var(--muted)" }}>
+              {quick.where}
+              {quick.minutes ? ` · about ${quick.minutes} min` : ""}
+            </p>
+            <div className="btn-row" style={{ marginTop: 6 }}>
+              <button
+                type="button"
+                className="btn small"
+                onClick={() => {
+                  update((g) => completeJob(g, quick, jobs.today)[0], "Done. Lovely work.", true);
+                  setGentle("done");
+                }}
+              >
+                Done
+              </button>
+              <button type="button" className="btn quiet" style={{ minHeight: 40 }} onClick={() => setSkipped([...skipped, quick.key])}>
+                Something else
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {gentle === "done" && (
+        <div className="gentle">
+          <span className="icon" aria-hidden="true">
+            <IconLeaf size={20} />
+          </span>
+          <p style={{ margin: 0, fontSize: 14, flex: 1 }}>That's it. Have a look at this week's jobs if you're in the mood for more.</p>
+        </div>
+      )}
+
+      <div className="stack">
+        <div className="row">
+          <p className="label">This week's jobs</p>
+          <a href={href({ page: "jobs" })} className="text-btn" style={{ textDecoration: "none", minHeight: 32, display: "flex", alignItems: "center" }}>
+            See all ({jobs.thisWeek.length})
+          </a>
+        </div>
+        {jobs.thisWeek.length === 0 ? (
+          <p className="empty">All done for this week. Lovely work.</p>
+        ) : (
+          <div className="list">
+            {jobs.thisWeek.slice(0, 3).map((j) => (
+              <JobRow key={j.key} job={j} compact />
+            ))}
+          </div>
+        )}
+      </div>
 
       {struggling.length > 0 && (
         <div className="stack">
