@@ -6,53 +6,68 @@ Mary Mary is a personal gardening app and companion for Stef. It helps keep on t
 
 ## Who it's for
 
-- A single home gardener (Stef), based in the **UK (Europe/London)**.
+- A home gardener (Stef), based in the **UK (Europe/London)**. Stef gardens with Cath. Sharing with Cath on her own phone is planned for later.
 - Use UK conventions: metric units (cm, m, °C), UK spellings, UK seasons and frost dates, and UK plant names alongside the Latin ones.
 - It should feel friendly and calm, like a helpful gardening friend rather than a farm-management tool.
 
-## Core features (in rough priority order)
+## The design
 
-1. **My plants** — a list of everything in the garden: name, variety, Latin name, where it's planted, date planted, source (seed, plug, cutting, shop), photos and notes.
-2. **Garden areas** — beds, borders, pots, greenhouse, veg patch and so on. Each area holds plants and can record sun/shade and soil type.
-3. **Care calendar & reminders** — watering, feeding, pruning, deadheading, sowing, pricking out, hardening off, planting out and harvesting. Show what's due this week.
-4. **Sowing & planting planner** — month-by-month guidance on what to sow or plant (indoors or outdoors), based on UK timings and the last and first frost dates.
-5. **Garden journal** — dated notes and photos about what happened, what worked and what didn't. Searchable by plant or area.
-6. **Harvest log** — what was picked, when and how much.
-7. **Garden plan / layout** — a simple visual map of beds and what's in them, with year-on-year history to help with crop rotation.
-8. *(Later)* Weather-aware nudges, such as frost warnings or "no need to water, it rained", and a wishlist or shopping list.
+The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (https://claude.ai/artifact/MhdEt4dfEphpKfEUdAjFUp). It has 31 phone screens: Home, First-time setup, Area pages and planting plan, Jobs, Out in the garden, Weather, Urgent warnings, Notifications, Going away (plus Cath's view), Garden diary, Supplies, Settings and Menu. Match its look:
+
+- Plus Jakarta Sans font
+- cream background `#F1EFE8`, dark green `#27500A`, green `#3B6D11`, pale green `#EAF3DE`
+- white rounded cards, round area icons, buttons at least 44px
+
+## Core features (rough priority order)
+
+1. **My plants**: name, variety, Latin name, area, section, date planted, source, notes and photos. Status: growing / struggling / lost.
+2. **Garden areas**: beds, borders, pots, greenhouse, allotment and so on, each with aspect, soil and notes.
+3. **Care calendar and jobs**: what's due this week, who's doing it, done / not now, "One thing at a time".
+4. **Weather**: forecast, frost and heat warnings, and "no need to water, it rained" (Open-Meteo, free, no key).
+5. **Sowing and planting planner**: UK timings and frost dates. Takes past setbacks into account.
+6. **Garden diary**: dated notes and photos, by area and plant.
+7. **Supplies**: what's in the shed and what's running low.
+8. **Harvest log**, **garden layout plan** and **going away** mode.
+9. *Later:* sharing with Cath (online database and invites), push notifications, smarter suggestions.
+
+## Plants that don't make it (setbacks)
+
+- From a plant: **"Not doing well"**, choosing **Struggling**, **Died** or **Pulled it out**.
+- Optional reason chips (Weather → Frost / Heat / Wind; Water → Too wet / Too dry; Pests → named pest; Disease; Forgot about it; Don't know). The gardener's own words are kept exactly as written, and Mary Mary offers reasons it spots in them ("Sounds like: + Wind").
+- **Add to diary** is on by default and creates a linked journal entry.
+- Struggling plants show on Home ("Needs a look") and on their area. Lost plants move to **Didn't make it** with their history. Areas show "Learned here" counts, and adding the same plant again shows what happened last time.
+- Suggestions use setback history gently and never block.
 
 ## Product principles
 
-- **Quick to use outdoors.** Logging a task or note should take seconds, on a phone, with muddy hands.
-- **Simple first.** Start with plants, areas and reminders. Add the rest gradually.
-- **The data belongs to Stef.** Data should be easy to export (CSV/JSON), with no lock-in.
-- **Gentle, not naggy.** Reminders should be helpful and easy to snooze or skip.
+- **Quick to use outdoors**: seconds, on a phone, with muddy hands.
+- **Simple first**: add features gradually.
+- **The data belongs to Stef**: backup (JSON), plants as CSV, restore. No lock-in.
+- **Gentle, not naggy**: setbacks are for learning, not blame.
 
-## Suggested tech approach (open to change)
+## Decisions (28 Oct 2026)
 
-- Start as a **mobile-friendly web app**, ideally a PWA so it can be installed on a phone.
-- Keep the stack simple and well known, for example **React + TypeScript + Vite**.
-- Store data locally first, for example in IndexedDB. Add cloud sync later only if needed.
-- Use plain, readable code with small components. Avoid heavy frameworks unless they clearly help.
-- Write tests for the date and reminder logic. That's where bugs would hurt most.
-
-## Data model sketch
-
-- **Plant**: id, commonName, variety, latinName, areaId, plantedOn, source, notes, photos[]
-- **Area**: id, name, type (bed / pot / greenhouse / border), sun, soil, notes
-- **Task**: id, plantId?, areaId?, type (water / feed / prune / sow / harvest / …), dueOn, repeat, doneOn?
-- **JournalEntry**: id, date, text, plantIds[], areaIds[], photos[]
-- **Harvest**: id, plantId, date, quantity, unit, notes
+- **Just Stef's phone first.** No backend yet. Sharing with Cath is a later phase that needs an online database and sign-in, so ask before starting it.
+- **Weather:** use Open-Meteo (free, no account). The postcode is only used for the forecast.
+- **Smarts:** a built-in UK table of seasonal jobs and plant advice first. No AI service yet: that would need an API key and a running cost, so ask first.
+- **Tech:**
+  - React + TypeScript, bundled with **esbuild** (`build.mjs`), not Vite. Claude's workspace can't download npm packages, so the build uses only tools that work there.
+  - Hosted on **GitHub Pages**: `.github/workflows/deploy.yml` builds on every push to `main`. Live at https://stefdicembre.github.io/mary-mary/
+  - Installed on the iPhone via Safari → Add to Home Screen. Offline support comes from `public/sw.js`.
+  - Data in IndexedDB as one `GardenData` document (`src/lib/types.ts`). Changes go through pure functions in `src/lib/actions.ts`, with tests in `src/lib/logic.test.ts`.
+  - Hash routing (`#/area/…`) so GitHub Pages needs no server set-up.
+- **Stef's computer:** Windows. The folder is `Desktop\mary-mary` (in OneDrive) and is managed with GitHub Desktop. Stef doesn't use the command line.
 
 ## How to work with me (notes for Claude)
 
 - I'm building this for myself, so **explain things in plain English** and don't assume deep coding knowledge.
 - **Ask before** making big structural decisions, such as changing the stack, adding a backend, or adding paid services.
-- Work in small steps. Get one feature working end to end, show it, then move on.
-- Keep a short `README.md` up to date explaining how to run the app.
-- When gardening advice is built in (sowing times, care tips), aim for UK accuracy and note where advice is general.
+- Work in small steps: get one feature working end to end, show it, then move on.
+- Keep `README.md` up to date.
+- For built-in gardening advice, aim for UK accuracy and note where advice is general.
+- After a change: run `npm test` and `npm run build`, then tell me to Commit and Push in GitHub Desktop.
 
 ## Current status
 
-- Nothing has been built yet. This file is the starting brief.
-- **First step:** set up the project and build the **My plants** list (add, edit, view) with local storage.
+- **v0.1 built:** Home, garden areas (Stef's eight areas pre-filled), plants, "Not doing well" setbacks, Didn't make it, Settings with backup, export and restore, offline install, and GitHub Pages publishing.
+- **Next:** weather (Open-Meteo) on Home and the Weather screen. Then jobs this week, the garden diary screen and supplies.

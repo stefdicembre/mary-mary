@@ -1,61 +1,46 @@
 # Mary Mary: project history and handover
 
-This file carries the context from the claude.ai "Mary Mary" project into Claude Code.
-The main brief is in `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided so far.
+The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
 _Last updated: 28 October 2026_
 
 ## What Mary Mary is
 
-Mary Mary is a personal gardening app and companion for Stef, based in the UK. It helps keep on top of the garden day to day and plan it season by season. The project description is: "How does my garden grow? This is a gardening app and companion that helps me keep on top and plan my garden."
+Mary Mary is a personal gardening app and companion for Stef (UK), who gardens with Cath. It helps keep on top of the garden day to day and plan it season by season. Project description: "How does my garden grow? This is a gardening app and companion that helps me keep on top and plan my garden."
 
-## Conversation summary so far
+## Timeline
 
-1. **Moving to Claude Code.** Stef asked how to turn the Mary Mary project into a Claude Code chat. We agreed on this approach:
-   - Make a project folder on the computer, called `mary-mary`, on the Desktop.
-   - Put a `CLAUDE.md` brief in it. Claude Code reads that file automatically at the start of every session.
-   - Open the folder from the **Code** tab in the Claude desktop app, or with the Claude Code command-line tool.
-   - Claude Code can't see claude.ai chats or projects. Anything it needs to know has to be in files in this folder.
-2. **CLAUDE.md written.** A starter brief was written and placed in this folder. A copy is also saved in the claude.ai project. The brief covers:
-   - the purpose, users and UK conventions
-   - the features, in priority order
-   - the product principles
-   - a suggested setup, a sketch of the data the app stores, and working preferences
-3. **This handover file.** It's here so Claude Code knows the background.
+1. **11 to 25 Oct 2026: brief and wireframes.** Product brief written. Wireframes designed in the claude.ai Design canvas "Mary Mary: home screen" (https://claude.ai/artifact/MhdEt4dfEphpKfEUdAjFUp), with 31 phone screens.
+2. **28 Oct: CLAUDE.md and this handover** written for working in Claude Code / Cowork.
+3. **28 Oct: plants that don't make it.** Setback feature designed: struggling / died / pulled out, optional reasons, own words kept exactly, diary entry, lessons shown when replanting.
+4. **28 Oct: publishing plan.** Guide written as a Claude Doc, "Mary Mary: from wireframes to your iPhone" (https://claude.ai/artifact/HtEKuzk7Ma2iRhSHF9LujG).
+   - Stef created the GitHub account and installed GitHub Desktop.
+   - Stef made the `Desktop\mary-mary` folder (Windows, OneDrive) and published it to https://github.com/stefdicembre/mary-mary
+5. **28 Oct: version 0.1 built.**
+   - Home, garden areas (Stef's 8 pre-filled), plants, "Not doing well" setbacks, Didn't make it, backup/export/restore, offline install, and the GitHub Pages workflow.
+   - 8 logic tests pass. Clicked through end to end on an iPhone-sized screen.
+   - Files copied into the folder. The `.github/workflows/deploy.yml` file is protected from remote writes, so it was sent to Stef to place by hand.
 
 ## Decisions made
 
-- **Audience:** one home gardener (Stef) in the UK. Use metric units, UK spellings, and UK seasons and frost dates.
-- **Feature order:**
-  1. My plants
-  2. Garden areas
-  3. Care calendar and reminders
-  4. Sowing and planting planner
-  5. Journal
-  6. Harvest log
-  7. Garden layout plan
-  8. Later: weather nudges and a wishlist
-- **Principles:** quick to use outdoors on a phone; start simple; Stef's data is easy to export, with no lock-in; reminders are gentle rather than nagging.
-- **Suggested setup (still open to change):**
-  - a mobile-friendly web app or PWA built with React + TypeScript + Vite
-  - data stored on the device first (IndexedDB)
-  - tests for the date and reminder logic
-- **How Stef wants to work:**
-  - explanations in plain English
-  - Claude asks before any big structural decision
-  - small steps, getting one feature fully working at a time
-  - a `README.md` kept up to date
+- **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
+- **Weather:** Open-Meteo (free, no key).
+- **Smarts:** a built-in UK advice table first. No AI service yet.
+- **Tech:**
+  - React + TypeScript, bundled with esbuild, not Vite. Claude's workspace can't reach the npm registry.
+  - GitHub Pages via Actions, installed from Safari as a home-screen web app.
+  - Data in IndexedDB, with JSON backup and CSV export.
+- **Setback tips** are worded as general UK advice ("Net it from late spring…"). They don't promise features that aren't built yet.
+- **How Stef works:** plain English, small steps, ask before big decisions, keep the README current. Stef uses GitHub Desktop and no command line.
 
 ## Open questions
 
-- Confirm the tech stack (the React + Vite web app is only a suggestion so far).
-- Whether the app needs to work across several devices (that would mean cloud sync later) or just one phone.
-- Where to find UK sowing and frost-date data: entered by hand, a built-in table, or an online source.
+- UK sowing and frost-date data: a built-in table (likely) or an online source.
+- When to start sharing with Cath, and which online database to use (Supabase or Firebase free tier are candidates).
+- Photos: storing them on the phone will grow the data. They need their own storage before the diary is built.
 
-## Next step
+## Next steps
 
-Set up the project and build the **My plants** list (add, edit and view plants), with data saved on the device.
-
-## Notes
-
-- This summary covers the chats that were visible when it was written. If other chats in the claude.ai project held more ideas, add them under "Decisions made" or "Open questions".
+1. Stef: place `deploy.yml` in `.github\workflows`, switch Pages to GitHub Actions, then commit and push. Check for the green tick, then install on the iPhone (guide Steps 6 and 7).
+2. Claude: weather on Home and the Weather screen (Open-Meteo, using the postcode in Settings).
+3. Then: this week's jobs, the garden diary screen and supplies.
