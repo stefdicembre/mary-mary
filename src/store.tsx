@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { emptyGarden } from "./lib/data";
+import { emptyGarden, upgrade } from "./lib/data";
 import { askToKeepData, loadGarden, saveGarden } from "./lib/db";
 import type { GardenData } from "./lib/types";
 
@@ -38,7 +38,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     loadGarden()
-      .then((g) => setGarden(g ?? emptyGarden(true)))
+      .then((g) => setGarden(g ? upgrade(g) : emptyGarden(true)))
       .catch(() => setGarden(emptyGarden(true)));
     askToKeepData();
   }, []);
@@ -76,7 +76,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const store: Store = {
     garden,
     update,
-    replaceAll: (g) => setGarden(g),
+    replaceAll: (g) => setGarden(upgrade(g)),
     toast,
     undo: () => {
       if (toast?.undo) setGarden(toast.undo);

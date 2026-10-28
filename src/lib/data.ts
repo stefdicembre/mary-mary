@@ -1,6 +1,6 @@
 // Creating, checking and exporting the garden data.
 
-import type { Area, AreaKind, GardenData } from "./types";
+import type { Area, AreaKind, ColourScheme, GardenData } from "./types";
 
 export function newId(prefix: string): string {
   const rand = Math.random().toString(36).slice(2, 8);
@@ -50,15 +50,34 @@ export function emptyGarden(withStarterAreas: boolean): GardenData {
   const areas: Area[] = withStarterAreas
     ? STARTER_AREAS.map(([name, kind], i) => ({ id: `area_start${i}`, name, kind, createdAt: now }))
     : [];
-  return {
+  return upgrade({
     version: 1,
     settings: { gardenName: "Stef and Cath's garden", yourName: "Stef" },
     areas,
     plants: [],
     setbacks: [],
     journal: [],
-  };
+    planned: [],
+    notForMe: [],
+  });
 }
+
+/** Fills in anything an older version of the app didn't save yet. */
+export function upgrade(g: GardenData): GardenData {
+  // The wireframes give two borders a colour scheme by name; fill that in if it's not set.
+  const areas = g.areas.map((a) =>
+    a.colours ? a : /sunset/i.test(a.name) ? { ...a, colours: "hot" as const } : /pastel/i.test(a.name) ? { ...a, colours: "pastel" as const } : a,
+  );
+  return { ...g, areas, planned: g.planned ?? [], notForMe: g.notForMe ?? [] };
+}
+
+export const COLOUR_SCHEMES: Array<{ value: ColourScheme; label: string; colours: string[] }> = [
+  { value: "hot", label: "Hot, sunset colours", colours: ["orange", "red", "yellow", "bronze"] },
+  { value: "pastel", label: "Soft pastels", colours: ["pink", "lilac", "pale-yellow", "white", "blue"] },
+  { value: "cool", label: "Blues and purples", colours: ["blue", "purple", "lilac", "white"] },
+  { value: "white", label: "Whites and greens", colours: ["white", "green"] },
+  { value: "any", label: "Anything goes", colours: [] },
+];
 
 /** Checks a backup file looks like Mary Mary data before restoring it. */
 export function isGardenData(x: unknown): x is GardenData {
@@ -70,7 +89,9 @@ export function isGardenData(x: unknown): x is GardenData {
     Array.isArray(g.areas) &&
     Array.isArray(g.plants) &&
     Array.isArray(g.setbacks) &&
-    Array.isArray(g.journal)
+    Array.isArray(g.journal) &&
+    (g.planned === undefined || Array.isArray(g.planned)) &&
+    (g.notForMe === undefined || Array.isArray(g.notForMe))
   );
 }
 

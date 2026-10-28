@@ -21,6 +21,10 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  const isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
+  // Weather and postcode look-ups always go to the internet; the app saves its own copy.
+  if (url.origin !== self.location.origin && !isFont) return;
 
   // Pages: try the internet first (to get updates), fall back to the saved copy.
   if (req.mode === "navigate") {

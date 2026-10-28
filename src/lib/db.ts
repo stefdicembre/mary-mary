@@ -37,6 +37,26 @@ export async function saveGarden(data: GardenData): Promise<void> {
   });
 }
 
+/** Any other small thing worth keeping, such as the last weather forecast. */
+export async function loadExtra<T>(key: string): Promise<T | undefined> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(STORE, "readonly").objectStore(STORE).get(key);
+    req.onsuccess = () => resolve(req.result as T | undefined);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function saveExtra(key: string, value: unknown): Promise<void> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).put(value, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 /** Asks the browser not to clear Mary Mary's data when space runs low. */
 export async function askToKeepData(): Promise<void> {
   try {

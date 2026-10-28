@@ -21,6 +21,14 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
    - 8 logic tests pass. Clicked through end to end on an iPhone-sized screen.
    - Files copied into the folder. The `.github/workflows/deploy.yml` file is protected from remote writes, so it was sent to Stef to place by hand.
 
+6. **28 Oct: went live.**
+   - The repo was made public, which is needed for free GitHub Pages.
+   - Stef placed `deploy.yml`, committed and pushed. The app is installed on the iPhone and "feels good so far".
+7. **28 Oct: version 0.2, weather and planting plan.**
+   - Weather uses postcodes.io and Open-Meteo, with frost, heat, wind, rain and dry-spell advice and a list of tender plants to protect.
+   - The planting plan uses a built-in UK catalogue of about 75 plants and follows aspect, colours, soil and setback lessons. It has Planned, Planted it and Not for me.
+   - 22 tests pass, and an end-to-end click-through passed using a pretend forecast.
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -41,6 +49,5 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Next steps
 
-1. Stef: place `deploy.yml` in `.github\workflows`, switch Pages to GitHub Actions, then commit and push. Check for the green tick, then install on the iPhone (guide Steps 6 and 7).
-2. Claude: weather on Home and the Weather screen (Open-Meteo, using the postcode in Settings).
-3. Then: this week's jobs, the garden diary screen and supplies.
+1. Stef: commit and push v0.2, add the postcode in Settings, and set aspect and colours on each area.
+2. Then: this week's jobs (wireframe Jobs screen), the garden diary screen and supplies.

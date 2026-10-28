@@ -69,5 +69,10 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
 
 ## Current status
 
-- **v0.1 built:** Home, garden areas (Stef's eight areas pre-filled), plants, "Not doing well" setbacks, Didn't make it, Settings with backup, export and restore, offline install, and GitHub Pages publishing.
-- **Next:** weather (Open-Meteo) on Home and the Weather screen. Then jobs this week, the garden diary screen and supplies.
+- **v0.1 (live):** Home, garden areas (Stef's eight areas pre-filled), plants, "Not doing well" setbacks, Didn't make it, Settings with backup, export and restore, offline install, and GitHub Pages publishing.
+- **v0.2:**
+  - **Weather:** the postcode is looked up with postcodes.io, the forecast comes from Open-Meteo, and the last forecast is saved for offline use. Frost, heat, wind, rain and dry-spell advice. Frost warnings list tender plants (`isTender` plus past frost setbacks).
+  - **Planting plan:** built-in catalogue of about 75 UK plants. Suggestions follow the area's aspect, colours, soil and setback lessons. Planned plants live on the area, "Planted it" makes them real plants, and "Not for me" is remembered.
+  - Areas now have a colour scheme.
+- **Next:** jobs this week (the wireframe Jobs screen), the garden diary screen and supplies.
+- The repo is public, which is needed for free GitHub Pages. Stef places `.github/workflows` files by hand, because remote tools can't write there.

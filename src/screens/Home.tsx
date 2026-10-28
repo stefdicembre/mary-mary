@@ -3,6 +3,10 @@ import { setbackSummary } from "../lib/reasons";
 import { AreaIcon, IconCog, IconMenu, IconNext, IconPlus } from "../icons";
 import { href } from "../router";
 import { useStore } from "../store";
+import { adviceFor } from "../lib/weather";
+import { todayISO } from "../lib/dates";
+import { useWeather } from "../weatherStore";
+import { UrgentCard, WeatherBadge } from "./Weather";
 
 /** "The allotment" → "Allotment", to fit under the circle. */
 const shortName = (n: string) => {
@@ -12,6 +16,8 @@ const shortName = (n: string) => {
 
 export function Home() {
   const { garden, saveError } = useStore();
+  const { forecast, status } = useWeather();
+  const urgent = forecast ? adviceFor(forecast, garden, todayISO()).filter((a) => a.urgent) : [];
   const now = new Date();
   const struggling = garden.plants.filter((p) => p.status === "struggling");
   const areaName = (id: string) => garden.areas.find((a) => a.id === id)?.name ?? "";
@@ -29,15 +35,24 @@ export function Home() {
         </a>
       </div>
 
-      <div className="stack-sm">
-        <h1>Mary Mary</h1>
-        <p className="sub">{garden.settings.gardenName}</p>
+      <div className="row" style={{ alignItems: "center" }}>
+        <div className="stack-sm" style={{ minWidth: 0 }}>
+          <h1>Mary Mary</h1>
+          <p className="sub">{garden.settings.gardenName}</p>
+        </div>
+        <WeatherBadge f={forecast} status={status} />
       </div>
 
       <div className="stack-sm">
         <h2 style={{ fontSize: 20 }}>{greeting(now)}</h2>
         <p className="sub">{longDate(now)}</p>
       </div>
+
+      {urgent.map((a) => (
+        <a key={a.kind} href={href({ page: "weather" })} style={{ textDecoration: "none" }}>
+          <UrgentCard a={a} compact />
+        </a>
+      ))}
 
       {saveError && (
         <div className="panel-amber" role="alert">

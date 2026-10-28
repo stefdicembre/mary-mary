@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { addArea, removeArea, updateArea } from "../lib/actions";
-import { AREA_KINDS } from "../lib/data";
-import type { Area, AreaKind, Aspect } from "../lib/types";
+import { AREA_KINDS, COLOUR_SCHEMES } from "../lib/data";
+import type { Area, AreaKind, Aspect, ColourScheme } from "../lib/types";
 import { go, href } from "../router";
 import { useStore } from "../store";
 import { BackBar, Chips, NotFound } from "../ui";
@@ -28,6 +28,7 @@ export function AreaForm({ id }: { id?: string }) {
   const [kind, setKind] = useState<AreaKind | undefined>(existing?.kind ?? "border");
   const [aspect, setAspect] = useState<Aspect | undefined>(existing?.aspect);
   const [soil, setSoil] = useState<string | undefined>(existing?.soil);
+  const [colours, setColours] = useState<ColourScheme | undefined>(existing?.colours);
   const [notes, setNotes] = useState(existing?.notes ?? "");
   const [needName, setNeedName] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -47,6 +48,7 @@ export function AreaForm({ id }: { id?: string }) {
       kind: kind ?? "other",
       aspect,
       soil,
+      colours,
       notes: notes.trim() || undefined,
     };
     if (existing) {
@@ -105,6 +107,14 @@ export function AreaForm({ id }: { id?: string }) {
           Soil <span className="optional">(optional)</span>
         </span>
         <Chips label="Soil" options={SOILS.map((s) => ({ value: s, label: s }))} value={soil} onChange={setSoil} />
+      </div>
+
+      <div className="field">
+        <span className="flabel">
+          Colour scheme <span className="optional">(optional)</span>
+        </span>
+        <Chips label="Colour scheme" options={COLOUR_SCHEMES.map((c) => ({ value: c.value, label: c.label }))} value={colours} onChange={setColours} />
+        <p className="hint">Used by the planting plan to suggest plants that suit.</p>
       </div>
 
       <div className="field">

@@ -115,3 +115,70 @@ export function AreaIcon({ kind, size = 30 }: { kind: AreaKind; size?: number })
       return <IconLeaf size={size} />;
   }
 }
+
+/** Weather pictures, in the wireframes' colours. */
+export function SkyIcon({ sky, size = 30 }: { sky: "sun" | "partly" | "cloud" | "fog" | "rain" | "snow" | "thunder" | "frost" | "moon"; size?: number }) {
+  const v = { width: size, height: size, viewBox: "0 0 30 30", "aria-hidden": true as const };
+  const sun = (
+    <>
+      <g stroke="#EF9F27" strokeWidth="1.6" strokeLinecap="round">
+        <path d="M15 3v3M15 24v3M3 15h3M24 15h3M6.5 6.5l2.1 2.1M21.4 21.4l2.1 2.1M6.5 23.5l2.1-2.1M21.4 8.6l2.1-2.1" />
+      </g>
+      <circle cx="15" cy="15" r="6" fill="#FAC775" />
+    </>
+  );
+  const cloud = (fill: string, stroke: string) => (
+    <path d="M8 21h14a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4 1.6A3.8 3.8 0 0 0 8 21z" fill={fill} stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" />
+  );
+  switch (sky) {
+    case "sun":
+      return <svg {...v}>{sun}</svg>;
+    case "moon":
+      return (
+        <svg {...v}>
+          <path d="M20 21.5A8.5 8.5 0 0 1 12.2 7 8.5 8.5 0 1 0 23 18.2a8.4 8.4 0 0 1-3 3.3z" fill="#E6F1FB" stroke="#185FA5" strokeWidth="1.6" strokeLinejoin="round" />
+        </svg>
+      );
+    case "partly":
+      return (
+        <svg {...v}>
+          <g transform="translate(-4 -4) scale(0.8)">{sun}</g>
+          <g transform="translate(3 3) scale(0.85)">{cloud("#FFFFFF", "#888780")}</g>
+        </svg>
+      );
+    case "cloud":
+      return <svg {...v}>{cloud("#F1EFE8", "#888780")}</svg>;
+    case "fog":
+      return (
+        <svg {...v} fill="none" stroke="#888780" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M5 11h20M3 16h24M6 21h18" />
+        </svg>
+      );
+    case "rain":
+      return (
+        <svg {...v}>
+          <g transform="translate(0 -3)">{cloud("#E6F1FB", "#185FA5")}</g>
+          <g stroke="#185FA5" strokeWidth="2" strokeLinecap="round">
+            <path d="M10 22l-1.5 4M15 22l-1.5 4M20 22l-1.5 4" />
+          </g>
+        </svg>
+      );
+    case "thunder":
+      return (
+        <svg {...v}>
+          <g transform="translate(0 -3)">{cloud("#E6F1FB", "#185FA5")}</g>
+          <path d="M15 19l-3 5h3l-2 4" fill="none" stroke="#EF9F27" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case "snow":
+    case "frost":
+      return (
+        <svg {...v}>
+          <g stroke="#185FA5" strokeWidth="1.8" strokeLinecap="round" fill="none">
+            <path d="M15 4v22M5.5 9.5l19 11M5.5 20.5l19-11" />
+            <path d="M12 6l3 2.5 3-2.5M12 24l3-2.5 3 2.5" />
+          </g>
+        </svg>
+      );
+  }
+}

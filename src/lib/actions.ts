@@ -19,7 +19,7 @@ export function updateArea(g: GardenData, id: string, changes: Partial<Area>): G
 /** Only empty areas can be removed, so no plant is ever orphaned. */
 export function removeArea(g: GardenData, id: string): GardenData {
   if (g.plants.some((p) => p.areaId === id && p.status !== "lost")) return g;
-  return { ...g, areas: g.areas.filter((a) => a.id !== id) };
+  return { ...g, areas: g.areas.filter((a) => a.id !== id), planned: g.planned.filter((p) => p.areaId !== id) };
 }
 
 export function addPlant(g: GardenData, p: Omit<Plant, "id" | "createdAt" | "status">): [GardenData, string] {
@@ -123,4 +123,41 @@ export function pastSetbacksFor(g: GardenData, plantName: string): Setback[] {
   if (!key) return [];
   const ids = new Set(g.plants.filter((p) => p.name.trim().toLowerCase() === key).map((p) => p.id));
   return g.setbacks.filter((s) => ids.has(s.plantId)).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+// ── Planting plan ────────────────────────────────────────────────
+
+export function addPlanned(
+  g: GardenData,
+  p: { areaId: string; catalogueId?: string; name: string; section: string; plantMonth?: number },
+  today: string,
+): GardenData {
+  if (p.catalogueId && g.planned.some((x) => x.areaId === p.areaId && x.catalogueId === p.catalogueId)) return g;
+  return { ...g, planned: [...g.planned, { ...p, id: newId("planned"), addedOn: today }] };
+}
+
+export function removePlanned(g: GardenData, id: string): GardenData {
+  return { ...g, planned: g.planned.filter((p) => p.id !== id) };
+}
+
+/** It's in the ground: turn the planned plant into a real one. */
+export function plantPlanned(g: GardenData, id: string, today: string): GardenData {
+  const p = g.planned.find((x) => x.id === id);
+  if (!p) return g;
+  // "Tulip 'Ballerina'" → name "Tulip", variety "Ballerina"
+  const m = p.name.match(/^(.*?)\s+'(.+)'$/);
+  const [next] = addPlant(removePlanned(g, id), {
+    name: m ? m[1] : p.name,
+    variety: m ? m[2] : undefined,
+    areaId: p.areaId,
+    section: p.section,
+    plantedOn: today,
+  });
+  return next;
+}
+
+export function notForMe(g: GardenData, areaId: string, catalogueId: string, undo = false): GardenData {
+  const key = `${areaId}:${catalogueId}`;
+  const list = g.notForMe.filter((k) => k !== key);
+  return { ...g, notForMe: undo ? list : [...list, key] };
 }

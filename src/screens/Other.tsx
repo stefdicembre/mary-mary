@@ -4,7 +4,8 @@ import { updateSettings } from "../lib/actions";
 import { isGardenData, plantsToCSV } from "../lib/data";
 import { shortDate, todayISO } from "../lib/dates";
 import { setbackSummary } from "../lib/reasons";
-import { IconBook, IconClose, IconCog, IconDownload, IconNext } from "../icons";
+import { IconBook, IconClose, IconCog, IconDownload, IconNext, SkyIcon } from "../icons";
+import { findPlace } from "../lib/weatherApi";
 import { href } from "../router";
 import { useStore } from "../store";
 import { BackBar } from "../ui";
@@ -33,10 +34,11 @@ export function Menu() {
       </div>
       <h1>Menu</h1>
       <div className="list">
+        {item(href({ page: "weather" }), <SkyIcon sky="partly" size={24} />, "Weather", "The week ahead, and what it means for the garden")}
         {item(href({ page: "lost" }), <IconBook />, "Didn't make it", lostCount ? `${lostCount} ${lostCount === 1 ? "plant" : "plants"} to learn from` : "Nothing lost so far")}
         {item(href({ page: "settings" }), <IconCog size={22} color="#3B6D11" />, "Settings and backup", "Your garden's name, and saving a copy")}
       </div>
-      <p className="hint">Coming next: weather and frost warnings, this week's jobs, the garden diary and supplies.</p>
+      <p className="hint">Coming next: this week's jobs, the garden diary and supplies.</p>
     </>
   );
 }
@@ -108,6 +110,8 @@ export function Settings() {
   const [yourName, setYourName] = useState(garden.settings.yourName);
   const [postcode, setPostcode] = useState(garden.settings.postcode ?? "");
   const [restoreMsg, setRestoreMsg] = useState("");
+  const [placeMsg, setPlaceMsg] = useState("");
+  const [saving, setSaving] = useState(false);
   const [pending, setPending] = useState<unknown>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const stamp = todayISO();
@@ -132,22 +136,53 @@ export function Settings() {
         </div>
         <div className="field">
           <label htmlFor="s-post">
-            Town or postcode <span className="optional">(for weather, coming soon)</span>
+            Town or postcode <span className="optional">(for the weather)</span>
           </label>
           <input id="s-post" className="input" value={postcode} autoCapitalize="characters" onChange={(e) => setPostcode(e.target.value)} />
           <p className="hint">Only used for your local weather and frost warnings. Never shared.</p>
         </div>
+        {garden.settings.location && garden.settings.location.forPostcode === (garden.settings.postcode ?? "") && (
+          <p className="hint">Weather is for {garden.settings.location.place}.</p>
+        )}
+        {placeMsg && (
+          <p className="hint" role="status" style={{ color: "var(--struggle)" }}>
+            {placeMsg}
+          </p>
+        )}
         <button
           type="button"
           className="btn"
-          onClick={() =>
+          disabled={saving}
+          onClick={async () => {
+            setPlaceMsg("");
+            const pc = postcode.trim();
+            let location = garden.settings.location;
+            if (!pc) location = undefined;
+            else if (!location || location.forPostcode !== pc) {
+              setSaving(true);
+              try {
+                const found = await findPlace(pc);
+                location = { ...found, forPostcode: pc };
+              } catch (e) {
+                setPlaceMsg((e as Error).message);
+                setSaving(false);
+                return;
+              }
+              setSaving(false);
+            }
             update(
-              (g) => updateSettings(g, { gardenName: gardenName.trim() || g.settings.gardenName, yourName: yourName.trim() || g.settings.yourName, postcode: postcode.trim() || undefined }),
-              "Saved",
-            )
-          }
+              (g) =>
+                updateSettings(g, {
+                  gardenName: gardenName.trim() || g.settings.gardenName,
+                  yourName: yourName.trim() || g.settings.yourName,
+                  postcode: pc || undefined,
+                  location,
+                }),
+              location && location.forPostcode === pc && pc ? `Saved. Weather is for ${location.place}` : "Saved",
+            );
+          }}
         >
-          Save
+          {saving ? "Finding your place…" : "Save"}
         </button>
       </div>
 

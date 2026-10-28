@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { plantPlanned, removePlanned } from "../lib/actions";
+import { todayISO } from "../lib/dates";
 import { AREA_KINDS, SECTIONS } from "../lib/data";
 import { shortDate } from "../lib/dates";
 import { reasonLabel, setbackSummary } from "../lib/reasons";
@@ -8,14 +10,17 @@ import { href } from "../router";
 import { useStore } from "../store";
 import { BackBar, NotFound } from "../ui";
 import { aspectText } from "./AreaForm";
+import { COLOUR_SCHEMES } from "../lib/data";
 
 export function AreaPage({ id }: { id: string }) {
-  const { garden } = useStore();
+  const { garden, update } = useStore();
   const [showLost, setShowLost] = useState(false);
   const area = garden.areas.find((a) => a.id === id);
   if (!area) return <NotFound what="area" />;
 
   const here = garden.plants.filter((p) => p.areaId === id);
+  const planned = garden.planned.filter((p) => p.areaId === id).sort((a, b) => (a.plantMonth ?? 13) - (b.plantMonth ?? 13));
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const growing = here.filter((p) => p.status !== "lost");
   const lost = here.filter((p) => p.status === "lost");
   const setbacksHere = garden.setbacks.filter((s) => s.areaId === id);
@@ -58,7 +63,10 @@ export function AreaPage({ id }: { id: string }) {
 
       <div className="stack-sm">
         <h1>{area.name}</h1>
-        <p className="sub">{AREA_KINDS.find((k) => k.kind === area.kind)?.label}</p>
+        <p className="sub">
+          {AREA_KINDS.find((k) => k.kind === area.kind)?.label}
+          {area.colours ? ` · ${COLOUR_SCHEMES.find((c) => c.value === area.colours)?.label}` : ""}
+        </p>
       </div>
 
       <div className="facts">
@@ -116,6 +124,32 @@ export function AreaPage({ id }: { id: string }) {
           </div>
         ))}
       </div>
+
+      {planned.length > 0 && (
+        <div className="stack">
+          <h2>Planned</h2>
+          <div className="list">
+            {planned.map((p) => (
+              <div key={p.id} className="list-item" style={{ flexWrap: "wrap" }}>
+                <span className="grow">
+                  <span className="title">{p.name}</span>
+                  <span className="meta">{p.plantMonth ? `Plant in ${MONTHS[p.plantMonth - 1]}` : p.section}</span>
+                </span>
+                <button type="button" className="btn small" onClick={() => update((g) => plantPlanned(g, p.id, todayISO()), `${p.name} planted. Lovely.`, true)}>
+                  Planted it
+                </button>
+                <button type="button" className="btn quiet" style={{ minHeight: 40 }} aria-label={`Remove ${p.name} from planned`} onClick={() => update((g) => removePlanned(g, p.id), `${p.name} taken off the plan`, true)}>
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <a className="btn outline full" href={href({ page: "plan", areaId: id })}>
+        Suggest a planting plan
+      </a>
 
       {setbacksHere.length > 0 && (
         <div className="panel-amber">

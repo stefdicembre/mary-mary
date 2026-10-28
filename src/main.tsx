@@ -10,6 +10,9 @@ import { PlantPage } from "./screens/PlantPage";
 import { PlantForm } from "./screens/PlantForm";
 import { SetbackForm } from "./screens/SetbackForm";
 import { Lost, Menu, Settings } from "./screens/Other";
+import { WeatherScreen } from "./screens/Weather";
+import { PlanScreen } from "./screens/Plan";
+import { WeatherProvider } from "./weatherStore";
 
 function Screen() {
   const r = useRoute();
@@ -22,6 +25,10 @@ function Screen() {
       return <Settings />;
     case "lost":
       return <Lost />;
+    case "weather":
+      return <WeatherScreen />;
+    case "plan":
+      return <PlanScreen key={r.areaId} areaId={r.areaId} />;
     case "newArea":
       return <AreaForm key="new" />;
     case "area":
@@ -42,10 +49,12 @@ function Screen() {
 function App() {
   return (
     <StoreProvider>
-      <main className="app">
-        <Screen />
-      </main>
-      <ToastBar />
+      <WeatherProvider>
+        <main className="app">
+          <Screen />
+        </main>
+        <ToastBar />
+      </WeatherProvider>
     </StoreProvider>
   );
 }

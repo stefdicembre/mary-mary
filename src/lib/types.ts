@@ -11,9 +11,12 @@ export interface Area {
   kind: AreaKind;
   aspect?: Aspect;
   soil?: string;
+  colours?: ColourScheme;
   notes?: string;
   createdAt: string; // ISO date-time
 }
+
+export type ColourScheme = "hot" | "pastel" | "cool" | "white" | "any";
 
 export type PlantStatus = "growing" | "struggling" | "lost";
 
@@ -65,6 +68,20 @@ export interface GardenSettings {
   gardenName: string;
   yourName: string;
   postcode?: string;
+  /** Found from the postcode, used for the weather forecast. */
+  location?: { lat: number; lon: number; place: string; forPostcode: string };
+}
+
+/** A plant Mary Mary suggested and the gardener chose, waiting to be planted. */
+export interface PlannedPlant {
+  id: string;
+  areaId: string;
+  catalogueId?: string;
+  name: string;
+  section: string;
+  /** Month number (1 to 12) when it's best planted. */
+  plantMonth?: number;
+  addedOn: string; // YYYY-MM-DD
 }
 
 export interface GardenData {
@@ -74,4 +91,7 @@ export interface GardenData {
   plants: Plant[];
   setbacks: Setback[];
   journal: JournalEntry[];
+  planned: PlannedPlant[];
+  /** Suggestions the gardener said "Not for me" to, per area: "areaId:catalogueId". */
+  notForMe: string[];
 }
