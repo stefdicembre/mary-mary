@@ -5,6 +5,8 @@
 import { CATALOGUE } from "./catalogue";
 import type { CatPlant, Place, Sun } from "./catalogue";
 import { COLOUR_SCHEMES } from "./data";
+import { frostFor, startMonths } from "./sowing";
+import type { FrostInfo } from "./sowing";
 import type { Area, AreaKind, Aspect, GardenData } from "./types";
 
 export type Goal = "gaps" | "refresh";
@@ -94,10 +96,11 @@ function seasonOf(m: number): { name: string; range: string } {
   return { name: "autumn", range: "September to November" };
 }
 
-/** Months from now until this plant can next go in (0 = this month). */
-function wait(p: CatPlant, now: number): { month: number; months: number } {
-  let best = { month: p.plant[0], months: 99 };
-  for (const m of p.plant) {
+/** Months from now until this plant can next be sown or planted (0 = this month). */
+function wait(p: CatPlant, now: number, frost: FrostInfo): { month: number; months: number } {
+  const months = startMonths(p, frost);
+  let best = { month: months[0], months: 99 };
+  for (const m of months) {
     const d = (m - now + 12) % 12;
     if (d < best.months) best = { month: m, months: d };
   }
@@ -114,6 +117,7 @@ export function makePlan(
   const places = PLACES[area.kind];
   const sun = area.kind === "greenhouse" ? undefined : sunFor(area.aspect);
   const lessons = lessonsFor(g, area.id);
+  const frost = frostFor(g.settings);
   const isEdible = area.kind === "veg" || area.kind === "greenhouse";
   const scheme = COLOUR_SCHEMES.find((c) => c.value === area.colours);
   const schemeColours = scheme && !isEdible ? scheme.colours : [];
@@ -198,7 +202,7 @@ export function makePlan(
     if (soil === "Clay" && c.damp) score += 1;
     if ((soil === "Sandy" || soil === "Chalky") && c.dry) score += 1;
 
-    const w = wait(c, opts.month);
+    const w = wait(c, opts.month, frost);
     picked.push({ s: { plant: c, month: w.month, tags, note: notes[0] }, score, wait: w.months });
   }
 
@@ -235,23 +239,5 @@ export function makePlan(
   return { groups: Array.from(groups.values()), leftOut: Array.from(new Set(leftOut)).slice(0, 4), soilNote };
 }
 
-const SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-/** [3, 4, 5, 9, 10] → "Mar to May, Sep to Oct"; [11, 12, 1, 2] → "Nov to Feb". */
-export function monthRanges(months: number[]): string {
-  const set = new Set(months);
-  if (set.size === 12) return "any time";
-  // Start each run at a month whose previous month isn't in the list (handles Dec → Jan).
-  const runs: number[][] = [];
-  for (let m = 1; m <= 12; m++) {
-    if (!set.has(m) || set.has(m === 1 ? 12 : m - 1)) continue;
-    const run = [m];
-    let n = m;
-    while (set.has(n === 12 ? 1 : n + 1) && run.length < 12) {
-      n = n === 12 ? 1 : n + 1;
-      run.push(n);
-    }
-    runs.push(run);
-  }
-  return runs.map((r) => (r.length === 1 ? SHORT[r[0] - 1] : `${SHORT[r[0] - 1]} to ${SHORT[r[r.length - 1] - 1]}`)).join(", ");
-}
+// Kept in sowing.ts now; still available from here.
+export { monthRanges } from "./sowing";

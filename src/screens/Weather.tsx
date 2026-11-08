@@ -7,6 +7,7 @@ import { href } from "../router";
 import { useStore } from "../store";
 import { BackBar } from "../ui";
 import { useWeather } from "../weatherStore";
+import { FrostCard } from "./Frost";
 
 /** The current hour in the UK, as Open-Meteo writes it: "2026-10-28T14:00". */
 export function londonHour(now = new Date()): string {
@@ -209,6 +210,8 @@ export function WeatherScreen() {
           .
         </p>
       </div>
+
+      <FrostCard />
     </>
   );
 }

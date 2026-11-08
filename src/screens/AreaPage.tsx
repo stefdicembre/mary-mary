@@ -11,6 +11,8 @@ import { useStore } from "../store";
 import { BackBar, NotFound } from "../ui";
 import { aspectText } from "./AreaForm";
 import { COLOUR_SCHEMES } from "../lib/data";
+import { CATALOGUE } from "../lib/catalogue";
+import { frostFor, nextStep } from "../lib/sowing";
 
 export function AreaPage({ id }: { id: string }) {
   const { garden, update } = useStore();
@@ -21,6 +23,14 @@ export function AreaPage({ id }: { id: string }) {
   const here = garden.plants.filter((p) => p.areaId === id);
   const planned = garden.planned.filter((p) => p.areaId === id).sort((a, b) => (a.plantMonth ?? 13) - (b.plantMonth ?? 13));
   const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const frost = frostFor(garden.settings);
+  const thisMonth = Number(todayISO().slice(5, 7));
+  /** "Sow indoors early Mar to early Apr" for catalogue plants, following the frost dates. */
+  const plannedWhen = (catalogueId?: string, plantMonth?: number) => {
+    const c = catalogueId ? CATALOGUE.find((x) => x.id === catalogueId) : undefined;
+    if (c) return nextStep(c, frost, thisMonth).label + " " + nextStep(c, frost, thisMonth).words;
+    return plantMonth ? `Plant in ${MONTHS[plantMonth - 1]}` : undefined;
+  };
   const growing = here.filter((p) => p.status !== "lost");
   const lost = here.filter((p) => p.status === "lost");
   const setbacksHere = garden.setbacks.filter((s) => s.areaId === id);
@@ -137,7 +147,7 @@ export function AreaPage({ id }: { id: string }) {
               <div key={p.id} className="list-item" style={{ flexWrap: "wrap" }}>
                 <span className="grow">
                   <span className="title">{p.name}</span>
-                  <span className="meta">{p.plantMonth ? `Plant in ${MONTHS[p.plantMonth - 1]}` : p.section}</span>
+                  <span className="meta">{plannedWhen(p.catalogueId, p.plantMonth) ?? p.section}</span>
                 </span>
                 <button type="button" className="btn small" onClick={() => update((g) => plantPlanned(g, p.id, todayISO()), `${p.name} planted. Lovely.`, true)}>
                   Planted it

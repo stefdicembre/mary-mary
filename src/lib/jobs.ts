@@ -3,6 +3,8 @@
 // if there are dahlias). Timings are general advice for most of England and Wales.
 
 import { newId } from "./data";
+import { fillFrost, frostFor, whenMonths, windowIn } from "./sowing";
+import type { FrostInfo, When } from "./sowing";
 import type { Advice } from "./weather";
 import type { AreaKind, GardenData, Task } from "./types";
 import { returnSupplies, spendSupplies, suppliesForJob } from "./supplies";
@@ -20,6 +22,12 @@ export interface SeasonalJob {
   kinds?: AreaKind[];
   /** What it uses from the shed. */
   uses?: JobUse[];
+  /**
+   * Tied to this garden's frost dates (v0.8): weeks either side of the last spring
+   * frost or the first autumn one. When set, this decides when the job is due and
+   * `months` is only the general fallback. {last} and {first} in `why` become the dates.
+   */
+  frost?: When;
 }
 
 export const SEASONAL: SeasonalJob[] = [
@@ -40,19 +48,20 @@ export const SEASONAL: SeasonalJob[] = [
   { id: "prune-raspberries", title: "Cut autumn raspberry canes to the ground", months: [2], minutes: 15, why: "Autumn raspberries fruit on new canes each year.", plants: ["raspberr"] },
   { id: "cut-dogwood", title: "Cut back dogwood stems", months: [3], minutes: 15, why: "Fresh stems have the brightest winter colour. Every other year is fine.", plants: ["dogwood", "cornus"] },
   { id: "chit-potatoes", title: "Chit seed potatoes on a cool windowsill", months: [2, 3], minutes: 10, why: "Sprouting them first gives an earlier crop.", kinds: ["veg"] },
-  { id: "sow-tomatoes", title: "Sow tomatoes and chillies indoors", months: [2, 3], minutes: 20, why: "They need a long, warm season to ripen.", kinds: ["greenhouse"], uses: [{ what: "seed compost", match: ["compost"] }] },
+  { id: "sow-tomatoes", title: "Sow tomatoes and chillies indoors", months: [2, 3], frost: { spring: [-10, -6] }, minutes: 20, why: "They need a long, warm season to ripen, so start them about eight weeks before your last frost ({last}).", kinds: ["greenhouse"], uses: [{ what: "seed compost", match: ["compost"] }] },
   { id: "mulch-borders", title: "Mulch the borders with compost", months: [3, 4], minutes: 45, why: "A layer while the soil is damp keeps moisture in and weeds down.", uses: [{ what: "compost", lots: true }, { what: "mulch", match: ["bark", "manure"], lots: true }] },
   { id: "divide-perennials", title: "Lift and divide crowded clumps of perennials", months: [3, 4, 9, 10], minutes: 30, why: "Gives free plants and keeps them flowering well." },
   { id: "slug-watch", title: "Protect new shoots from slugs", months: [3, 4, 5], minutes: 10, why: "Young shoots are most at risk in damp spring weather. Check after rain, at dusk.", plants: ["hosta", "delphinium", "dahlia", "lettuce", "salad", "courgette", "basil"], uses: [{ what: "slug pellets", match: ["slug", "nematode"] }] },
   { id: "plant-potatoes", title: "Plant potatoes", months: [3, 4], minutes: 30, why: "First earlies from mid-March, main crops in April.", kinds: ["veg"], uses: [{ what: "seed potatoes", match: ["potato"], lots: true }] },
   { id: "feed-shrubs", title: "Feed roses, shrubs and fruit", months: [3, 4], minutes: 20, why: "A general feed as growth starts sets them up for the year.", uses: [{ what: "general feed", match: ["growmore", "fish, blood", "blood", "chicken manure", "rose feed", "fertiliser"] }] },
   { id: "stake-perennials", title: "Put in supports for tall perennials", months: [4, 5], minutes: 20, why: "Much easier now than once they've flopped.", uses: [{ what: "canes", match: ["cane", "stake", "plant support", "support"] }, { what: "twine" }] },
-  { id: "harden-off", title: "Harden off young plants", months: [4, 5], minutes: 5, why: "Put them out by day and in at night for a week or two before planting out.", kinds: ["greenhouse"] },
+  { id: "sow-tender-veg", title: "Sow courgettes, squash and beans in pots indoors", months: [4, 5], frost: { spring: [-4, -1] }, minutes: 20, why: "Three or four weeks before your last frost ({last}) gives sturdy plants to go out after it.", kinds: ["veg"], uses: [{ what: "seed compost", match: ["compost"] }] },
+  { id: "harden-off", title: "Harden off young plants", months: [4, 5], frost: { spring: [-2, 0] }, minutes: 5, why: "Put them out by day and in at night for a week or two before planting out after {last}.", kinds: ["greenhouse"] },
   { id: "sow-salad", title: "Sow salad leaves and beetroot", months: [4, 5, 6, 7], minutes: 15, why: "Sow a little every few weeks for a steady supply.", kinds: ["veg"] },
   { id: "tie-in-climbers", title: "Tie in climbers", months: [4, 5, 6], minutes: 15, why: "New shoots grow fast. Tie them in sideways for more flowers.", plants: ["clematis", "roses?\\b", "honeysuckle", "jasmine", "climbing", "wisteria", "sweet pea"], uses: [{ what: "twine" }, { what: "plant ties", match: ["ties", "tie"] }] },
 
   // Late spring and summer
-  { id: "plant-out-tender", title: "Plant out tender plants after the last frost", months: [5, 6], minutes: 30, why: "In most of the UK the last frost has usually passed by late May.", plants: ["dahlia", "cosmos", "pelargonium", "tomato", "courgette", "runner bean", "basil", "canna"], uses: [{ what: "compost" }] },
+  { id: "plant-out-tender", title: "Plant out tender plants after the last frost", months: [5, 6], frost: { spring: [0, 4] }, minutes: 30, why: "Frost is usually over here by {last}. Check the forecast first and keep some fleece handy.", plants: ["dahlia", "cosmos", "pelargonium", "tomato", "courgette", "runner bean", "basil", "canna"], uses: [{ what: "compost" }] },
   { id: "net-brassicas", title: "Net cabbages and kale against caterpillars", months: [5, 6, 7], minutes: 20, why: "Cabbage white butterflies lay eggs from May.", plants: ["cabbage", "kale", "broccoli", "sprout", "cauliflower", "brassica"], uses: [{ what: "netting", match: ["net", "mesh"] }] },
   { id: "chelsea-chop", title: "Cut back late perennials by a third (the 'Chelsea chop')", months: [5], minutes: 20, why: "Makes sedums, asters and heleniums bushier, with more flowers.", plants: ["sedum", "aster", "helenium", "phlox", "rudbeckia", "echinacea"] },
   { id: "deadhead", title: "Deadhead roses and perennials", months: [6, 7, 8, 9], minutes: 15, why: "Snipping off faded flowers keeps new ones coming." },
@@ -67,8 +76,8 @@ export const SEASONAL: SeasonalJob[] = [
   { id: "plant-bulbs", title: "Plant spring bulbs (daffodils, crocus, alliums)", months: [9, 10], minutes: 30, why: "Daffodils like to go in early. Plant at about three times the bulb's depth.", uses: [{ what: "bulb compost", match: ["compost", "bulb fibre"] }, { what: "grit" }] },
   { id: "plant-tulips", title: "Plant tulips", months: [11], minutes: 20, why: "Planting in cold soil in November helps keep tulip fire disease away.", uses: [{ what: "grit" }] },
   { id: "winter-bedding", title: "Plant wallflowers and winter violas", months: [9, 10], minutes: 20, why: "Colour for pots through winter and into spring.", kinds: ["pots", "border"], uses: [{ what: "compost" }] },
-  { id: "tender-inside", title: "Bring tender plants under cover", months: [10], minutes: 20, why: "Before the first frost, usually mid to late October.", plants: ["pelargonium", "citrus", "lemon", "canna", "begonia", "aeonium", "agave", "succulent"] },
-  { id: "lift-dahlias", title: "Lift and store the dahlias", months: [10, 11], minutes: 30, why: "Once the first frost blackens the leaves. In milder gardens, a thick mulch can be enough instead.", plants: ["dahlia"], uses: [{ what: "compost" }] },
+  { id: "tender-inside", title: "Bring tender plants under cover", months: [10], frost: { autumn: [-3, 0] }, minutes: 20, why: "Before the first frost, which usually holds off here until {first}.", plants: ["pelargonium", "citrus", "lemon", "canna", "begonia", "aeonium", "agave", "succulent"] },
+  { id: "lift-dahlias", title: "Lift and store the dahlias", months: [10, 11], frost: { autumn: [0, 5] }, minutes: 30, why: "Once the first frost blackens the leaves. In milder gardens, a thick mulch can be enough instead.", plants: ["dahlia"], uses: [{ what: "compost" }] },
   { id: "wrap-banana", title: "Wrap the banana's trunk for winter", months: [11], minutes: 20, why: "Fleece and straw around the stem protects next year's growth from frost.", plants: ["musa", "banana"], uses: [{ what: "fleece" }, { what: "twine" }, { what: "straw" }] },
   { id: "leaves", title: "Rake up leaves and make leaf mould", months: [10, 11, 12], minutes: 20, why: "Bag them up damp with a few holes. In two years they make lovely free compost. Leave some under hedges for wildlife." },
   { id: "plant-garlic", title: "Plant garlic and autumn onion sets", months: [10, 11], minutes: 20, why: "Garlic needs winter cold to form good bulbs.", kinds: ["veg"], uses: [{ what: "garlic", lots: true }, { what: "onion sets", match: ["onion"], lots: true }] },
@@ -145,7 +154,6 @@ export interface JobLists {
 }
 
 export function jobLists(g: GardenData, today: string, advice: Advice[] = []): JobLists {
-  const month = Number(today.slice(5, 7));
   const weekEnd = addDays(today, 7);
   const doneKeys = new Set(g.tasks.filter((t) => t.doneOn && t.seasonalKey).map((t) => t.seasonalKey!));
   const snoozed = (key: string) => !!g.snoozed[key] && g.snoozed[key] > today;
@@ -189,14 +197,15 @@ export function jobLists(g: GardenData, today: string, advice: Advice[] = []): J
   }
 
   // Seasonal jobs from the calendar.
+  const frostDates = frostFor(g.settings);
   for (const job of SEASONAL.filter((j) => fits(g, j))) {
     const key = seasonalKey(job, today);
     if (doneKeys.has(key)) continue;
     const w = whereFor(g, job);
-    const base: JobItem = { key, kind: "seasonal", title: job.title, why: job.why, minutes: job.minutes, uses: job.uses, ...w };
-    if (job.months.includes(month)) {
-      const nextMonth = month === 12 ? 1 : month + 1;
-      const item = { ...base, lastChance: !job.months.includes(nextMonth) };
+    const base: JobItem = { key, kind: "seasonal", title: job.title, why: fillFrost(job.why, frostDates), minutes: job.minutes, uses: job.uses, ...w };
+    const due = dueNow(job, today, frostDates);
+    if (due) {
+      const item = { ...base, lastChance: due.lastChance };
       if (snoozed(key)) later.push(item);
       else thisWeek.push(item);
     }
@@ -211,11 +220,40 @@ export function jobLists(g: GardenData, today: string, advice: Advice[] = []): J
   return { thisWeek, later, done };
 }
 
-/** The seasonal jobs coming up next month, to look ahead. */
+/**
+ * Is a seasonal job due this week? Frost-linked jobs follow this garden's dates and show
+ * from a week before their window opens. Others follow their months.
+ */
+export function dueNow(job: SeasonalJob, today: string, f: FrostInfo): { lastChance: boolean } | undefined {
+  if (job.frost) {
+    const win = windowIn(job.frost, f, Number(today.slice(0, 4)))!;
+    if (today > win.to || addDays(today, 7) < win.from) return undefined;
+    return { lastChance: addDays(today, 14) >= win.to };
+  }
+  const month = Number(today.slice(5, 7));
+  if (!job.months.includes(month)) return undefined;
+  const nextMonth = month === 12 ? 1 : month + 1;
+  return { lastChance: !job.months.includes(nextMonth) };
+}
+
+/** The months a seasonal job falls in for this garden. */
+export function jobMonths(job: SeasonalJob, f: FrostInfo): number[] {
+  return job.frost ? whenMonths(job.frost, f) : job.months;
+}
+
+/** The seasonal jobs coming up in the next month or so, to look ahead. */
 export function nextMonthJobs(g: GardenData, today: string): SeasonalJob[] {
+  const f = frostFor(g.settings);
   const month = Number(today.slice(5, 7));
   const next = month === 12 ? 1 : month + 1;
-  return SEASONAL.filter((j) => fits(g, j) && j.months.includes(next) && !j.months.includes(month));
+  return SEASONAL.filter((j) => {
+    if (!fits(g, j) || dueNow(j, today, f)) return false;
+    if (j.frost) {
+      const win = windowIn(j.frost, f, Number(today.slice(0, 4)))!;
+      return win.from > today && win.from <= addDays(today, 42);
+    }
+    return j.months.includes(next) && !j.months.includes(month);
+  }).map((j) => ({ ...j, why: fillFrost(j.why, f) }));
 }
 
 /** "One thing at a time": a quick job, if there is one. */

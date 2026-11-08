@@ -231,7 +231,7 @@ export function JobsScreen() {
           </div>
         )}
       </div>
-      <p className="hint">Seasonal jobs are general advice for most of England and Wales. Further north, things often happen a couple of weeks later.</p>
+      <p className="hint">Seasonal jobs are general advice for UK gardens. Sowing, planting out and frost jobs follow your frost dates, which you can change in Settings.</p>
     </>
   );
 }

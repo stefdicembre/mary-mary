@@ -6,7 +6,7 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 **Live app:** https://stefdicembre.github.io/mary-mary/
 
-## What it does so far (version 0.7)
+## What it does so far (version 0.8)
 
 - **Home:** a greeting, your garden areas, and any plants that need a look.
 - **Garden areas:** add, edit or remove areas, with which way they face, soil and notes.
@@ -29,7 +29,9 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 - **Where it is** (new in 0.7): every plant page shows a little map of its bed with the plant's square picked out, roughly where that is ("In the top left corner of The Courtyard") and what's next to it. Tap it to open the bed plan with that plant already picked, ready to move. Plants without a square get "Give it a square", which opens the bed plan ready to tap a square. Plants that didn't make it show where they were.
 
-Possible next steps: going-away mode. Sharing with Cath comes later.
+- **Frost dates and sowing times** (new in 0.8): once your postcode is in Settings, Mary Mary looks at about ten years of past weather near you and works out when frost is usually over in spring and when it usually starts in autumn (right in about 8 years out of 10). You'll find them on the Weather screen and in Settings, where you can change them if your garden is a frost pocket. Planting plan suggestions now say "Sow indoors", "Sow outside" and "Plant out" separately, with dates that follow your frosts. Jobs like "Sow tomatoes indoors", "Harden off", "Plant out tender plants", "Bring tender plants under cover" and "Lift the dahlias" come up at the right time for your garden. There's also a new job: "Sow courgettes, squash and beans in pots indoors".
+
+Possible next steps: the full "Out in the garden" mode, heavy rain as an urgent warning, a Welcome back screen. Going-away mode is parked. Sharing with Cath comes later.
 
 ## Putting a change live
 
@@ -47,6 +49,7 @@ Possible next steps: going-away mode. Sharing with Cath comes later.
 - Harvest log: `src/lib/harvest.ts` (adding, changing and removing pickings with their diary line, crop totals that join "Tomatoes" and "Tomato 'Sungold'", last-year comparison, CSV; tested in `harvest.test.ts`) and `src/screens/Harvest.tsx`. Pickings are `GardenData.harvests`; only plants in the Fruit, Vegetables and Herbs sections are offered.
 - Diary photos: `src/lib/photos.ts`, kept in their own IndexedDB store. Unused photos are tidied when the app starts.
 - Layout: `src/lib/layout.ts` (map boxes and bed plan squares, tested in `layout.test.ts`) and `src/screens/Layout.tsx`. `whereIs`, `neighbours` and `positionWords` power the "Where it is" card on plant pages; `#/area/<id>/layout/plant/<plantId>` opens a bed plan with that plant picked. Bed plans are tidied after every change (`tidyBedPlans`) so they never point at deleted or moved plants.
+- Frost dates and sowing: `src/lib/sowing.ts` (tested in `sowing.test.ts`). `workOutFrost` reads daily lows from Open-Meteo's free history (`archive-api.open-meteo.com`, no key). A night of 2°C or below counts as a frost risk. It takes the date frost is over by in 8 years out of 10 (spring) and the date it holds off until in 8 years out of 10 (autumn). The dates are saved as `settings.frost`, worked out again if the place changes, and never overwritten once set by hand. `SOWING` gives seed-grown plants sow indoors / sow outside / plant out timings, either as fixed months or as weeks around the last frost. Seasonal jobs with `frost` follow the same dates (`dueNow`), and `{last}` / `{first}` in their text become the dates. `weatherStore.tsx` fetches the dates in the background, and `src/screens/Frost.tsx` shows them.
 - Planner: `src/lib/catalogue.ts` (built-in UK plant list, general advice) and `src/lib/plan.ts` (filtering and scoring).
 - Data lives in IndexedDB (`src/lib/db.ts`) as one document (`GardenData` in `src/lib/types.ts`).
 - All changes to the data go through small pure functions in `src/lib/actions.ts`.

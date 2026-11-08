@@ -9,6 +9,7 @@ import { IconBag, IconBasket, IconBook, IconCheck, IconClose, IconCog, IconDownl
 import { exportPhotos, importPhotos } from "../lib/photos";
 import { photosInUse } from "../lib/actions";
 import { findPlace } from "../lib/weatherApi";
+import { dateWords, fetchFrostDates, frostFor, frostSourceWords } from "../lib/sowing";
 import { href } from "../router";
 import { useStore } from "../store";
 import { BackBar } from "../ui";
@@ -195,6 +196,8 @@ export function Settings() {
         </button>
       </div>
 
+      <FrostSettings />
+
       <div className="stack" style={{ marginTop: 10 }}>
         <h2>Backup</h2>
         <p className="body">
@@ -290,3 +293,115 @@ export function Settings() {
 }
 
 declare const __APP_VERSION__: string;
+
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const PARTS: Array<[string, string]> = [["05", "Early"], ["15", "Mid"], ["25", "Late"]];
+const partOf = (mmdd: string) => (+mmdd.slice(3, 5) <= 10 ? "05" : +mmdd.slice(3, 5) <= 20 ? "15" : "25");
+
+/** Pick a date as "Mid" + "May": all the precision frost dates deserve. */
+function RoughDate({ id, label, value, onChange, months }: { id: string; label: string; value: string; onChange: (v: string) => void; months: number[] }) {
+  return (
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      <div className="btn-row">
+        <select id={id} className="input" aria-label={`${label}: early, mid or late`} value={partOf(value)} onChange={(e) => onChange(`${value.slice(0, 2)}-${e.target.value}`)}>
+          {PARTS.map(([v, l]) => (
+            <option key={v} value={v}>
+              {l}
+            </option>
+          ))}
+        </select>
+        <select className="input" aria-label={`${label}: month`} value={value.slice(0, 2)} onChange={(e) => onChange(`${e.target.value}-${partOf(value)}`)}>
+          {months.map((m) => (
+            <option key={m} value={String(m).padStart(2, "0")}>
+              {MONTH_NAMES[m - 1]}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
+
+/** Settings: the frost dates sowing and jobs follow (v0.8). */
+function FrostSettings() {
+  const { garden, update } = useStore();
+  const f = frostFor(garden.settings);
+  const [editing, setEditing] = useState(false);
+  const [last, setLast] = useState(f.lastSpring);
+  const [first, setFirst] = useState(f.firstAutumn);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const loc = garden.settings.location;
+
+  return (
+    <div className="stack" style={{ marginTop: 10 }}>
+      <h2>Frost dates</h2>
+      <p className="body">
+        Frost is usually over by <strong>{dateWords(f.lastSpring)}</strong> and holds off until <strong>{dateWords(f.firstAutumn)}</strong>. {frostSourceWords(f)}
+      </p>
+      <p className="hint">Sowing times, planting out and frost jobs all follow these. If your garden is a frost pocket, or you know better, change them.</p>
+      {msg && (
+        <p className="hint" role="status">
+          {msg}
+        </p>
+      )}
+      {editing ? (
+        <div className="card stack">
+          <RoughDate id="s-last" label="Last spring frost is usually over by" value={last} onChange={setLast} months={[2, 3, 4, 5, 6]} />
+          <RoughDate id="s-first" label="First autumn frost usually comes from" value={first} onChange={setFirst} months={[9, 10, 11, 12]} />
+          <div className="btn-row">
+            <button
+              type="button"
+              className="btn"
+              onClick={() => {
+                update((g) => updateSettings(g, { frost: { lastSpring: last, firstAutumn: first, source: "you" } }), "Frost dates saved", true);
+                setEditing(false);
+                setMsg("");
+              }}
+            >
+              Use these dates
+            </button>
+            <button type="button" className="btn quiet" onClick={() => setEditing(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="btn-row">
+          <button
+            type="button"
+            className="btn outline small"
+            onClick={() => {
+              setLast(f.lastSpring);
+              setFirst(f.firstAutumn);
+              setEditing(true);
+            }}
+          >
+            Change them
+          </button>
+          {loc && f.source !== "history" && (
+            <button
+              type="button"
+              className="btn outline small"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setMsg("");
+                try {
+                  const frost = await fetchFrostDates(loc, todayISO());
+                  update((g) => updateSettings(g, { frost }), `Frost dates worked out for ${loc.place}`, true);
+                } catch (e) {
+                  setMsg((e as Error).message);
+                }
+                setBusy(false);
+              }}
+            >
+              {busy ? "Working them out…" : "Work them out from the weather"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

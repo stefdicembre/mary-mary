@@ -2,7 +2,7 @@
 
 The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
-_Last updated: 8 November 2026 (v0.7)_
+_Last updated: 8 November 2026 (v0.8)_
 
 ## What Mary Mary is
 
@@ -57,6 +57,17 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
     - "Where it is" card on each plant page: mini bed plan, rough position, what's next to it, and a tap through to the bed plan with that plant picked. "Give it a square" for plants not placed yet.
     - 63 tests pass. Clicked through on an iPhone-sized screen.
 
+18. **v0.7 pushed** (checked in the folder on 8 Nov: `main` matches GitHub).
+19. **8 Nov: checkpoint against the 31 wireframe screens.**
+    - Built (23): Home, the 8 area pages, Planting plan, Jobs, Settings, Weather, Menu, Garden diary and the 8 area-filtered diaries, Supplies.
+    - Partly built (2): **Urgent warnings** (frost, heat and wind are urgent; heavy rain only shows as ordinary advice) and **Out in the garden** (only the "One thing at a time" card on Home, not the full-screen walk-round with "Take with you", how-to steps, notes and "What else did you do?").
+    - Not built (6): **First-time setup** (skipped because Stef's areas were pre-filled), **Welcome back**, **Notifications** (needs push, a later phase), **Going away** and **Going away: Cath's phone** (parked).
+    - Stef parked going-away mode: not wanted for now.
+20. **8 Nov: version 0.8, frost dates and sowing times.** Stef chose "both": local frost dates from past weather, and sow indoors / sow outside / plant out shown separately.
+    - Frost dates come from about 10 years of Open-Meteo weather history (free, no key). A night of 2°C or below counts as a frost risk, and the dates are right in 8 years out of 10. They're worked out in the background once a postcode is set, and can be changed by hand in Settings (early/mid/late + month).
+    - The planting plan shows Sow indoors / Sow outside / Plant out for seed-grown plants. Frost jobs (sow tomatoes, new "sow courgettes, squash and beans", harden off, plant out tender, bring tender plants in, lift dahlias) follow the garden's dates. Planned plants show their next step.
+    - 70 tests pass. Clicked through on an iPhone-sized screen with pretend weather and history (the real history service can't be reached from Claude's workspace).
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -68,15 +79,15 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
   - Data in IndexedDB, with JSON backup and CSV export.
 - **Setback tips** are worded as general UK advice ("Net it from late spring…"). They don't promise features that aren't built yet.
 - **How Stef works:** plain English, small steps, ask before big decisions, keep the README current. Stef uses GitHub Desktop and no command line.
+- **Going-away mode is parked** (8 Nov). Don't build it unless Stef asks.
 - **Edit files in place:** changes go into the existing files (in the app folder and in these project notes), never as new copies.
 
 ## Open questions
 
-- UK sowing and frost-date data: a built-in table (likely) or an online source.
 - When to start sharing with Cath, and which online database to use (Supabase or Firebase free tier are candidates).
-- Photos: storing them on the phone will grow the data. They need their own storage before the diary is built.
+- Photos: settled in v0.3. They're shrunk and kept in their own IndexedDB store, and included in backups.
 
 ## Next steps
 
-1. Stef: commit and push v0.7 in GitHub Desktop.
-2. Then, to choose: going-away mode, or something else.
+1. Stef: Commit and Push v0.8 in GitHub Desktop, then check the frost dates on the Weather screen look right for the garden.
+2. Other gaps from the wireframe check to choose from: the full "Out in the garden" mode, heavy rain as an urgent warning, Welcome back, First-time setup.

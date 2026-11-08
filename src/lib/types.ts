@@ -115,6 +115,20 @@ export interface GardenSettings {
   postcode?: string;
   /** Found from the postcode, used for the weather forecast. */
   location?: { lat: number; lon: number; place: string; forPostcode: string };
+  /** When frost usually ends in spring and starts in autumn here (v0.8). */
+  frost?: FrostDates;
+}
+
+/** This garden's frost dates, worked out from past weather or set by hand (v0.8). */
+export interface FrostDates {
+  lastSpring: string; // MM-DD: frost is usually over by this date
+  firstAutumn: string; // MM-DD: frost usually holds off until this date
+  source: "history" | "you";
+  /** How many years of weather it was worked out from. */
+  years?: number;
+  /** The place it was worked out for. */
+  place?: string;
+  workedOutOn?: string; // YYYY-MM-DD
 }
 
 /** A plant Mary Mary suggested and the gardener chose, waiting to be planted. */

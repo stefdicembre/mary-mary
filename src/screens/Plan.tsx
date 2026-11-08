@@ -2,7 +2,9 @@ import { useState } from "react";
 import { addPlanned, notForMe, removePlanned, updateArea } from "../lib/actions";
 import { COLOUR_SCHEMES } from "../lib/data";
 import { todayISO } from "../lib/dates";
-import { PRIORITIES, lessonsFor, makePlan, monthRanges } from "../lib/plan";
+import { PRIORITIES, lessonsFor, makePlan } from "../lib/plan";
+import { frostFor, stepsFor } from "../lib/sowing";
+import { FrostCard } from "./Frost";
 import type { Goal, Priority } from "../lib/plan";
 import { href } from "../router";
 import { useStore } from "../store";
@@ -43,6 +45,7 @@ export function PlanScreen({ areaId }: { areaId: string }) {
   const scheme = COLOUR_SCHEMES.find((c) => c.value === area.colours);
   const today = todayISO();
   const month = Number(today.slice(5, 7));
+  const frost = frostFor(garden.settings);
 
   if (view === "ask") {
     return (
@@ -156,6 +159,7 @@ export function PlanScreen({ areaId }: { areaId: string }) {
           <p className="v">Wind has caused trouble in {area.name}, so sturdy plants that don't need staking come first. Look for "Copes with wind".</p>
         </div>
       )}
+      <FrostCard compact />
       {plan.leftOut.length > 0 && <p className="hint">Left out: {plan.leftOut.join("; ")}.</p>}
 
       {total === 0 && (
@@ -192,7 +196,11 @@ export function PlanScreen({ areaId }: { areaId: string }) {
                     </p>
                     {(s.tags.length > 0 || s.plant.plant.length) && (
                       <div className="tags">
-                        <span className="tag amber">Plant {monthRanges(s.plant.plant)}</span>
+                        {stepsFor(s.plant, frost).map((st) => (
+                          <span key={st.kind} className="tag amber">
+                            {st.label} {st.words}
+                          </span>
+                        ))}
                         {s.tags.map((t) => (
                           <span key={t} className="tag green">
                             {t}
@@ -263,7 +271,7 @@ export function PlanScreen({ areaId }: { areaId: string }) {
       <a className="btn full" href={href({ page: "area", id: area.id })}>
         Back to {area.name}
       </a>
-      <p className="hint">Suggestions come from Mary Mary's own list of reliable plants for UK gardens. Timings are general advice for most of England and Wales, so check the label too.</p>
+      <p className="hint">Suggestions come from Mary Mary's own list of reliable plants for UK gardens. Sowing and planting-out times follow your frost dates. Other timings are general advice, so check the label too.</p>
     </>
   );
 }

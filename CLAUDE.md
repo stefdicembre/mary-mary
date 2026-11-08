@@ -24,10 +24,10 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
 2. **Garden areas**: beds, borders, pots, greenhouse, allotment and so on, each with aspect, soil and notes.
 3. **Care calendar and jobs**: what's due this week, who's doing it, done / not now, "One thing at a time".
 4. **Weather**: forecast, frost and heat warnings, and "no need to water, it rained" (Open-Meteo, free, no key).
-5. **Sowing and planting planner**: UK timings and frost dates. Takes past setbacks into account.
+5. **Sowing and planting planner**: UK timings that follow this garden's frost dates (v0.8). Takes past setbacks into account.
 6. **Garden diary**: dated notes and photos, by area and plant.
 7. **Supplies**: what's in the shed and what's running low.
-8. **Harvest log**, **garden layout plan** and **going away** mode.
+8. **Harvest log** and **garden layout plan**. (**Going away** mode is parked: Stef doesn't want it for now.)
 9. *Later:* sharing with Cath (online database and invites), push notifications, smarter suggestions.
 
 ## Plants that don't make it (setbacks)
@@ -96,7 +96,13 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
 - **v0.7 (8 Nov 2026):**
   - **Plant ↔ bed plan link:** plant pages have a "Where it is" card: a mini bed plan with the plant's square picked out, rough position ("In the top left corner of …", from `positionWords`) and "Next to …" (`neighbours`, lost plants left out, up to three names plus "N more"). Tapping it opens `#/area/<id>/layout/plant/<plantId>`, which starts with the plant picked (ready to move), a glowing ring once placed, and Back to the plant. Plants without a square get "Give it a square"; lost plants show "Where it was".
   - Logic (`whereIs`, `spotName`, `neighbours`, `positionWords`, `andList`) in `src/lib/layout.ts`, 63 tests in all.
-- **Next:** going-away mode, or something else Stef picks. Ask Stef.
+- **v0.8 (8 Nov 2026):**
+  - **Frost dates:** `settings.frost` (`FrostDates` in types.ts), worked out by `workOutFrost` in `src/lib/sowing.ts` from about 10 years of daily lows (Open-Meteo history, `archive-api.open-meteo.com`). A night of 2°C or below counts as a frost risk, and the dates are right in 8 years out of 10. `weatherStore.tsx` fetches them in the background (`needsFrostDates`: none yet, or a different place; dates set by hand are never overwritten). Shown on the Weather screen (`FrostCard` in `screens/Frost.tsx`), and in Settings with "Change them" (early/mid/late + month) and "Work them out from the weather". Until they're known, the general dates are used (last frost mid May, first frost mid October).
+  - **Sowing:** `SOWING` gives seed-grown catalogue plants sow indoors / sow outside / plant out timings, as fixed months or weeks around the last frost (`When`). `stepsFor` shows them on the planting plan, the plan's "when" uses `startMonths`, and planned plants show `nextStep`.
+  - **Frost jobs:** `SeasonalJob.frost` ties a job to the dates (`dueNow`; it shows from a week before its window opens). `{last}` / `{first}` in `why` become the dates. Jobs tied to frost: sow tomatoes, sow courgettes/squash/beans (new), harden off, plant out tender, bring tender plants in, lift dahlias.
+  - 70 tests in all (`sowing.test.ts`).
+- **Wireframe check (8 Nov):** 23 of 31 screens built. Partly built: Urgent warnings (heavy rain isn't urgent yet) and Out in the garden (only the Home card). Not built: First-time setup, Welcome back, Notifications (later phase), Going away and Cath's view (parked).
+- **Next:** another gap from the wireframe check (the full Out in the garden mode, heavy rain as urgent, Welcome back, First-time setup). Ask Stef.
 - **Claude's workspace:** `npm install` is blocked, but React, esbuild, tsx and TypeScript are in `/opt/npm-tools/node_modules`. Symlink them into `node_modules/` to run `npm test` and `npm run build`. There are no React types there, so `.tsx` can't be type-checked; the click-through covers that.
 - **Delivering changes:** with Stef's `Desktop\mary-mary` folder connected, write the changed files straight into it (update the existing files, don't make copies). Stef then Commits and Pushes in GitHub Desktop.
 - The repo is public, which is needed for free GitHub Pages. Stef places `.github/workflows` files by hand, because remote tools can't write there.

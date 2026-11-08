@@ -5,6 +5,9 @@ import type { ReactNode } from "react";
 import type { Forecast } from "./lib/weather";
 import { getForecast, savedForecast } from "./lib/weatherApi";
 import { useStore } from "./store";
+import { todayISO } from "./lib/dates";
+import { fetchFrostDates, needsFrostDates } from "./lib/sowing";
+import { updateSettings } from "./lib/actions";
 
 type Status = "no-place" | "loading" | "ok" | "offline";
 
@@ -19,7 +22,7 @@ const Ctx = createContext<WeatherState>({ status: "no-place", refresh: () => und
 export const useWeather = () => useContext(Ctx);
 
 export function WeatherProvider({ children }: { children: ReactNode }) {
-  const { garden } = useStore();
+  const { garden, update } = useStore();
   const loc = garden.settings.location;
   const [forecast, setForecast] = useState<Forecast>();
   const [status, setStatus] = useState<Status>(loc ? "loading" : "no-place");
@@ -54,6 +57,23 @@ export function WeatherProvider({ children }: { children: ReactNode }) {
     document.addEventListener("visibilitychange", onShow);
     return () => document.removeEventListener("visibilitychange", onShow);
   }, [load]);
+
+  // Frost dates (v0.8): worked out once from past weather, and again if the garden's place changes.
+  // Quietly tries again next time the app opens if there's no signal.
+  const wantFrost = needsFrostDates(garden.settings);
+  useEffect(() => {
+    if (!wantFrost || !loc) return;
+    let stop = false;
+    fetchFrostDates(loc, todayISO())
+      .then((frost) => {
+        if (!stop)
+          update((g) => (g.settings.location?.place === frost.place && needsFrostDates(g.settings) ? updateSettings(g, { frost }) : g));
+      })
+      .catch(() => undefined);
+    return () => {
+      stop = true;
+    };
+  }, [wantFrost, loc?.lat, loc?.lon, loc?.place]);
 
   return <Ctx.Provider value={{ forecast, status, refresh: () => load(true) }}>{children}</Ctx.Provider>;
 }
