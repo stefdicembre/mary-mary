@@ -2,7 +2,7 @@
 
 The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
-_Last updated: 8 November 2026 (v0.8)_
+_Last updated: 8 November 2026 (v0.9)_
 
 ## What Mary Mary is
 
@@ -68,6 +68,11 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
     - The planting plan shows Sow indoors / Sow outside / Plant out for seed-grown plants. Frost jobs (sow tomatoes, new "sow courgettes, squash and beans", harden off, plant out tender, bring tender plants in, lift dahlias) follow the garden's dates. Planned plants show their next step.
     - 70 tests pass. Clicked through on an iPhone-sized screen with pretend weather and history (the real history service can't be reached from Claude's workspace).
 
+21. **8 Nov: version 0.9, urgent alerts on the lock screen.** Stef chose GitHub to send them (free, no new account) and urgent only: frost tonight, storms and heatwaves, no daily nudge.
+    - Settings → Notifications turns them on and makes a private push code that Stef pastes into GitHub as the `MARY_MARY_PUSH` secret. A test alert can be sent from GitHub's Actions tab.
+    - GitHub checks the forecast at about 6am and 3pm every day and sends each alert once. Frost alerts name the tender plants.
+    - No extra packages: the encryption uses Node's built-in tools and matches the standard's worked example. 78 tests pass. Clicked through on an iPhone-sized screen with stand-ins for the phone's notification parts.
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -80,6 +85,7 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 - **Setback tips** are worded as general UK advice ("Net it from late spring…"). They don't promise features that aren't built yet.
 - **How Stef works:** plain English, small steps, ask before big decisions, keep the README current. Stef uses GitHub Desktop and no command line.
 - **Going-away mode is parked** (8 Nov). Don't build it unless Stef asks.
+- **Notifications (8 Nov):** GitHub Actions sends them (no backend). Urgent only for now. Timing is loose (GitHub can be up to 30 minutes late), and GitHub pauses scheduled runs after 60 days without a push.
 - **Edit files in place:** changes go into the existing files (in the app folder and in these project notes), never as new copies.
 
 ## Open questions
@@ -89,5 +95,5 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Next steps
 
-1. Stef: Commit and Push v0.8 in GitHub Desktop, then check the frost dates on the Weather screen look right for the garden.
+1. Stef: Commit and Push v0.9 in GitHub Desktop, then set up alerts in Settings → Notifications (copy the code into GitHub, run the test).
 2. Other gaps from the wireframe check to choose from: the full "Out in the garden" mode, heavy rain as an urgent warning, Welcome back, First-time setup.

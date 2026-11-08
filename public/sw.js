@@ -55,3 +55,35 @@ self.addEventListener("fetch", (event) => {
     ),
   );
 });
+
+// Urgent alerts (v0.9): GitHub sends them (scripts/notify.ts), this shows them.
+self.addEventListener("push", (event) => {
+  let m = {};
+  try {
+    m = event.data ? event.data.json() : {};
+  } catch {
+    m = { body: event.data ? event.data.text() : "" };
+  }
+  event.waitUntil(
+    self.registration.showNotification(m.title || "Mary Mary", {
+      body: m.body || "",
+      icon: "./icons/icon-192.png",
+      badge: "./icons/icon-192.png",
+      tag: m.tag || "mary-mary",
+      data: { url: m.url || "#/weather" },
+    }),
+  );
+});
+
+// Tapping an alert opens Mary Mary at the right screen (the weather, usually).
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || "#/weather", self.registration.scope).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      const open = list.find((c) => c.url.startsWith(self.registration.scope));
+      if (open) return open.navigate(target).then((c) => (c || open).focus()).catch(() => open.focus());
+      return self.clients.openWindow(target);
+    }),
+  );
+});

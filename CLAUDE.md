@@ -28,7 +28,8 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
 6. **Garden diary**: dated notes and photos, by area and plant.
 7. **Supplies**: what's in the shed and what's running low.
 8. **Harvest log** and **garden layout plan**. (**Going away** mode is parked: Stef doesn't want it for now.)
-9. *Later:* sharing with Cath (online database and invites), push notifications, smarter suggestions.
+9. **Urgent alerts** on the lock screen (v0.9: frost, storms, heatwaves only).
+10. *Later:* sharing with Cath (online database and invites), an everyday nudge, smarter suggestions.
 
 ## Plants that don't make it (setbacks)
 
@@ -101,8 +102,14 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
   - **Sowing:** `SOWING` gives seed-grown catalogue plants sow indoors / sow outside / plant out timings, as fixed months or weeks around the last frost (`When`). `stepsFor` shows them on the planting plan, the plan's "when" uses `startMonths`, and planned plants show `nextStep`.
   - **Frost jobs:** `SeasonalJob.frost` ties a job to the dates (`dueNow`; it shows from a week before its window opens). `{last}` / `{first}` in `why` become the dates. Jobs tied to frost: sow tomatoes, sow courgettes/squash/beans (new), harden off, plant out tender, bring tender plants in, lift dahlias.
   - 70 tests in all (`sowing.test.ts`).
-- **Wireframe check (8 Nov):** 23 of 31 screens built. Partly built: Urgent warnings (heavy rain isn't urgent yet) and Out in the garden (only the Home card). Not built: First-time setup, Welcome back, Notifications (later phase), Going away and Cath's view (parked).
-- **Next:** another gap from the wireframe check (the full Out in the garden mode, heavy rain as urgent, Welcome back, First-time setup). Ask Stef.
+- **v0.9 (8 Nov 2026): urgent alerts.** Stef chose "GitHub sends them" (no new accounts) and "urgent only" (no daily nudge yet).
+  - Settings → Notifications (`screens/Notify.tsx`, `lib/push.ts`): needs the Home Screen app (iOS 16.4+) and a postcode. "Turn on urgent alerts" asks permission, makes VAPID keys on the phone with WebCrypto, subscribes, and builds a **push code** (`PushCode` in `lib/alerts.ts`: subscription, keys, lat/lon/place, tender plant names). It's kept in IndexedDB (`push` extra), never in backups. Steps: Copy the code → GitHub secret `MARY_MARY_PUSH` → Actions → Garden alerts → Run workflow (test) → "Done, the test alert came". If the place or tender plants change, it asks for a new code (`codeIsOutOfDate`).
+  - `.github/workflows/notify.yml` runs at 06:20 and 15:20 UTC (+ manual run, test on by default) → `npx tsx scripts/notify.ts`. `urgentAlerts` reuses `adviceFor`'s urgent rules: frost ≤0°C tonight; heat ≥30°C (morning: today, afternoon: tomorrow); gusts ≥55mph (today, or tomorrow in the afternoon). Heavy rain isn't an alert. Sent keys (`frost:<date>`) are kept in the Actions cache so each alert comes once. 404/410 from the push service fails the run with a "turn them on again" message (GitHub emails Stef).
+  - `scripts/webpush.ts`: RFC 8291 encryption + VAPID with Node's built-in crypto only, checked against the RFC's worked example. The repo is public, so the script never logs the place.
+  - `public/sw.js` shows the alert (`push`) and opens `#/weather` on tap. 78 tests in all.
+  - Not tested on a real iPhone from Claude's workspace: the click-through used stand-ins for the phone's notification parts, and a pretend Apple server checked signing and decryption.
+- **Wireframe check (8 Nov):** 23 of 31 screens built. Partly built: Urgent warnings (heavy rain isn't urgent yet) and Out in the garden (only the Home card). Notifications: urgent part built in v0.9 (everyday nudge and Cath alerts not yet). Not built: First-time setup, Welcome back, Going away and Cath's view (parked).
+- **Next:** Stef pushes v0.9 and sets up the secret. Then another gap from the wireframe check (the full Out in the garden mode, heavy rain as urgent, Welcome back, First-time setup). Ask Stef.
 - **Claude's workspace:** `npm install` is blocked, but React, esbuild, tsx and TypeScript are in `/opt/npm-tools/node_modules`. Symlink them into `node_modules/` to run `npm test` and `npm run build`. There are no React types there, so `.tsx` can't be type-checked; the click-through covers that.
 - **Delivering changes:** with Stef's `Desktop\mary-mary` folder connected, write the changed files straight into it (update the existing files, don't make copies). Stef then Commits and Pushes in GitHub Desktop.
-- The repo is public, which is needed for free GitHub Pages. Stef places `.github/workflows` files by hand, because remote tools can't write there.
+- The repo is public, which is needed for free GitHub Pages. `.github/workflows` files: on 8 Nov (v0.9) writing `notify.yml` into the folder from the computer's shell worked; earlier, remote tools couldn't write there. Existing files in the folder can't be replaced by tar (no delete permission): overwrite them in place with `cat new > file`.

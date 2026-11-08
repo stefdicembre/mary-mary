@@ -22,6 +22,11 @@ export function todayISO(now: Date = new Date()): string {
   return `${p.y}-${p.m}-${p.day}`;
 }
 
+/** The hour of the day in the UK, 0 to 23. */
+export function londonHour(now: Date = new Date()): number {
+  return londonParts(now).hour;
+}
+
 /** "Good morning", "Good afternoon" or "Good evening", by UK time. */
 export function greeting(now: Date = new Date()): string {
   const h = londonParts(now).hour;

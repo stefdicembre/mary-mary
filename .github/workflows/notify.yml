@@ -1,0 +1,50 @@
+# Mary Mary's garden alerts. Twice a day GitHub checks the forecast for the garden and,
+# if there's frost tonight, a heatwave or a storm, sends an alert to Stef's phone.
+# Needs the MARY_MARY_PUSH secret (from Settings → Notifications in the app).
+#
+# To send a test alert: Actions → Garden alerts → Run workflow.
+name: Garden alerts
+
+on:
+  schedule:
+    # GitHub uses UTC: these are about 6:20am and 3:20pm in winter, an hour later in summer.
+    # GitHub can run them up to half an hour late.
+    - cron: "20 6 * * *"
+    - cron: "20 15 * * *"
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Send a test alert (untick to check the weather now instead)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: garden-alerts
+
+jobs:
+  alerts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      # Remembers which alerts were already sent, so each one only comes once.
+      - uses: actions/cache/restore@v4
+        with:
+          path: .notify-state
+          key: notify-state-${{ github.run_id }}
+          restore-keys: notify-state-
+      - run: npx tsx scripts/notify.ts
+        env:
+          MARY_MARY_PUSH: ${{ secrets.MARY_MARY_PUSH }}
+          TEST: ${{ inputs.test && 'yes' || '' }}
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .notify-state
+          key: notify-state-${{ github.run_id }}

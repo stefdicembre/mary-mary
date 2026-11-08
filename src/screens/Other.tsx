@@ -13,6 +13,7 @@ import { dateWords, fetchFrostDates, frostFor, frostSourceWords } from "../lib/s
 import { href } from "../router";
 import { useStore } from "../store";
 import { BackBar } from "../ui";
+import { NotifySettings } from "./Notify";
 
 export function Menu() {
   const { garden } = useStore();
@@ -197,6 +198,8 @@ export function Settings() {
       </div>
 
       <FrostSettings />
+
+      <NotifySettings />
 
       <div className="stack" style={{ marginTop: 10 }}>
         <h2>Backup</h2>

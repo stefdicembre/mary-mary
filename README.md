@@ -6,7 +6,7 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 **Live app:** https://stefdicembre.github.io/mary-mary/
 
-## What it does so far (version 0.8)
+## What it does so far (version 0.9)
 
 - **Home:** a greeting, your garden areas, and any plants that need a look.
 - **Garden areas:** add, edit or remove areas, with which way they face, soil and notes.
@@ -30,6 +30,8 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 - **Where it is** (new in 0.7): every plant page shows a little map of its bed with the plant's square picked out, roughly where that is ("In the top left corner of The Courtyard") and what's next to it. Tap it to open the bed plan with that plant already picked, ready to move. Plants without a square get "Give it a square", which opens the bed plan ready to tap a square. Plants that didn't make it show where they were.
 
 - **Frost dates and sowing times** (new in 0.8): once your postcode is in Settings, Mary Mary looks at about ten years of past weather near you and works out when frost is usually over in spring and when it usually starts in autumn (right in about 8 years out of 10). You'll find them on the Weather screen and in Settings, where you can change them if your garden is a frost pocket. Planting plan suggestions now say "Sow indoors", "Sow outside" and "Plant out" separately, with dates that follow your frosts. Jobs like "Sow tomatoes indoors", "Harden off", "Plant out tender plants", "Bring tender plants under cover" and "Lift the dahlias" come up at the right time for your garden. There's also a new job: "Sow courgettes, squash and beans in pots indoors".
+
+- **Urgent alerts on the lock screen** (new in 0.9): frost tonight (0°C or below), storms (gusts of 55mph or more) and heatwaves (30°C or more), and nothing else. Frost alerts name your tender plants. Turn them on in Settings → Notifications (open the app from its Home Screen icon first). The app makes a private "push code" that you paste into GitHub once, as a secret called `MARY_MARY_PUSH`. GitHub then checks the forecast at about 6am and 3pm every day (an hour later in summer, and GitHub can be up to half an hour late) and sends the alert. Each alert only comes once. If your tender plants or postcode change, Settings asks you to make a new code and paste it over the old one. To send a test: GitHub → Actions → Garden alerts → Run workflow.
 
 Possible next steps: the full "Out in the garden" mode, heavy rain as an urgent warning, a Welcome back screen. Going-away mode is parked. Sharing with Cath comes later.
 
@@ -55,5 +57,6 @@ Possible next steps: the full "Out in the garden" mode, heavy rain as an urgent 
 - All changes to the data go through small pure functions in `src/lib/actions.ts`.
 - `npm install`, then `npm test` (logic tests), `npm run build` (makes `dist/`), and `npm run dev` (preview at http://localhost:5173).
 - `.github/workflows/deploy.yml` tests, builds and publishes to GitHub Pages on every push to `main`.
-- `public/sw.js` is the offline service worker. The build stamps a version into it, so each publish replaces the old cache.
+- Urgent alerts: `src/lib/alerts.ts` (the push code, which forecast alerts to send at each check, sending each once; tested in `alerts.test.ts`), `src/lib/push.ts` and `src/screens/Notify.tsx` (the phone side: permission, keys made with WebCrypto, the push code kept in IndexedDB and never in backups). `.github/workflows/notify.yml` runs `scripts/notify.ts` twice a day with the `MARY_MARY_PUSH` secret, and remembers what it sent in the Actions cache. `scripts/webpush.ts` encrypts (RFC 8291) and signs (VAPID) the alert with Node's built-in crypto, so no extra packages; `webpush.test.ts` checks it against the RFC's worked example. The repo is public, so the script never prints the garden's place. GitHub turns off scheduled workflows after 60 days without a push to the repo.
+- `public/sw.js` is the offline service worker, and shows alerts (`push`) and opens the app at the weather when one is tapped. The build stamps a version into it, so each publish replaces the old cache.
 - Icons are drawn by `scripts/make-icons.mjs`, which needs `sharp`. The PNGs are committed, so this only needs running if the icon design changes.

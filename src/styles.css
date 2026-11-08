@@ -338,3 +338,8 @@ label.btn { position: relative; }
 .stepper { display: flex; align-items: center; gap: 8px; }
 .stepper .chip { width: 44px; min-height: 44px; padding: 0; font-size: 20px; font-weight: 700; justify-content: center; }
 .stepper .input { width: 64px; text-align: center; font-size: 17px; font-weight: 600; }
+
+/* Numbered set-up steps (Settings → Notifications) */
+.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.steps a { color: var(--green-dark); font-weight: 600; }
+.steps code { font-size: 13px; background: var(--green-pale); padding: 1px 5px; border-radius: 5px; }
