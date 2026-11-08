@@ -2,6 +2,7 @@ import { useState } from "react";
 import { deletePlant, markRecovered, updatePlant } from "../lib/actions";
 import { shortDate, todayISO } from "../lib/dates";
 import { amountText, isEdible, plantHarvests, totalText } from "../lib/harvest";
+import { andList, neighbours, positionWords, spotName, whereIs } from "../lib/layout";
 import { lessonFor, setbackSummary } from "../lib/reasons";
 import { go, href } from "../router";
 import { useStore } from "../store";
@@ -107,6 +108,63 @@ export function PlantPage({ id }: { id: string }) {
           </button>
         </div>
       )}
+
+      {area && (() => {
+        const where = whereIs(garden, id);
+        const lost = plant.status === "lost";
+        if (!where && lost) return null;
+        const to = href({ page: "bedPlan", areaId: area.id, plantId: id });
+        if (!where) {
+          return (
+            <div className="stack">
+              <h2>Where it is</h2>
+              <div className="card stack" style={{ gap: 6 }}>
+                <p className="body">It isn't on the bed plan for {area.name} yet.</p>
+                <p className="hint">Handy in winter, when it's died back and you can't see it.</p>
+                <a className="btn outline small" href={to} style={{ alignSelf: "flex-start" }}>
+                  Give it a square
+                </a>
+              </div>
+            </div>
+          );
+        }
+        const { plan, spot } = where;
+        const taken = new Set(plan.spots.map((s) => `${s.x},${s.y}`));
+        const next = neighbours(garden, area.id, spot.x, spot.y).map((s) => spotName(garden, s)).filter(Boolean);
+        const shown = next.slice(0, 3);
+        const more = next.length - shown.length;
+        const cells = [];
+        for (let y = 0; y < plan.rows; y++)
+          for (let x = 0; x < plan.cols; x++) {
+            const me = x === spot.x && y === spot.y;
+            cells.push(<i key={`${x},${y}`} className={me ? `me${lost ? " lost" : ""}` : taken.has(`${x},${y}`) ? "taken" : undefined} />);
+          }
+        return (
+          <div className="stack">
+            <h2>Where it {lost ? "was" : "is"}</h2>
+            <a className="card where-card" href={to} aria-label={`See ${plant.name} on the ${area.name} bed plan`}>
+              <span className="mini-bed" aria-hidden="true" style={{ gridTemplateColumns: `repeat(${plan.cols}, 1fr)` }}>
+                {cells}
+              </span>
+              <span className="stack">
+                <span className="body" style={{ fontWeight: 600 }}>
+                  {(() => {
+                    const w = positionWords(plan, spot.x, spot.y);
+                    return lost ? `Was ${w}` : w.charAt(0).toUpperCase() + w.slice(1);
+                  })()}{" "}
+                  of {area.name}
+                </span>
+                {shown.length > 0 && (
+                  <span className="hint">
+                    Next to {andList(more > 0 ? [...shown, `${more} more`] : shown)}
+                  </span>
+                )}
+                <span className="hint" style={{ color: "var(--green)", fontWeight: 600 }}>See it on the bed plan ›</span>
+              </span>
+            </a>
+          </div>
+        );
+      })()}
 
       {(isEdible(plant) || garden.harvests.some((h) => h.plantId === id)) && (() => {
         const year = Number(todayISO().slice(0, 4));

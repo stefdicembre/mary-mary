@@ -308,6 +308,18 @@ label.btn { position: relative; }
 .bed-plant.planned { background: #fff; color: var(--green-dark); border: 2px dashed var(--green); }
 .bed-plant.lost { background: rgba(255, 255, 255, 0.5); color: var(--muted); border: 1.5px solid var(--border); text-decoration: line-through; }
 .bed-north { display: flex; justify-content: flex-end; }
+.bed-cell.focus { outline: 3px solid var(--green-dark); outline-offset: -1px; animation: bed-glow 1.4s ease-in-out 2; }
+@keyframes bed-glow { 50% { box-shadow: 0 0 0 5px rgba(59, 109, 17, 0.35); } }
+@media (prefers-reduced-motion: reduce) { .bed-cell.focus { animation: none; } }
+
+/* Plant page: where it is on the bed plan (v0.7) */
+.where-card { display: flex; gap: 12px; align-items: center; text-decoration: none; color: inherit; }
+.mini-bed { flex: none; width: 96px; display: grid; gap: 2px; padding: 4px; background: #e8d9bf; border-radius: 9px; border: 1px solid #d6c3a3; }
+.mini-bed i { aspect-ratio: 1; border-radius: 2px; background: rgba(255, 255, 255, 0.35); display: block; }
+.mini-bed i.taken { background: rgba(59, 109, 17, 0.35); border-radius: 50%; }
+.mini-bed i.me { background: var(--green-dark); border-radius: 50%; box-shadow: 0 0 0 2px #fff; }
+.mini-bed i.me.lost { background: var(--muted); }
+.where-card .stack { gap: 4px; min-width: 0; flex: 1; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend i { display: inline-block; width: 14px; height: 14px; flex: none; }

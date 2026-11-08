@@ -43,7 +43,7 @@ function Screen() {
     case "harvestEdit":
       return <HarvestForm key={`edit-${r.id}`} id={r.id} />;
     case "bedPlan":
-      return <BedPlanScreen key={r.areaId} areaId={r.areaId} />;
+      return <BedPlanScreen key={`${r.areaId}/${r.plantId ?? ""}`} areaId={r.areaId} plantId={r.plantId} />;
     case "plan":
       return <PlanScreen key={r.areaId} areaId={r.areaId} />;
     case "jobs":

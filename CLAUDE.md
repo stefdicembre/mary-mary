@@ -93,7 +93,10 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
   - Plant pages for edible plants show a Harvest card with "+ I picked some". Done recently offers "+ Harvest" after picking jobs (`isPickingJob`). Settings saves the log as CSV.
   - Data: `GardenData.harvests` (`Harvest` in types.ts), filled in by `upgrade()`. Deleting a plant keeps its pickings under the name; removing a picking removes the diary line Mary Mary wrote for it, and an edited picking only rewrites that line if it hasn't been changed by hand.
   - Logic in `src/lib/harvest.ts`, tests in `harvest.test.ts` (61 tests in all).
-- **Next:** possibly link a plant page to its square on the bed plan, or going-away mode. Ask Stef.
+- **v0.7 (8 Nov 2026):**
+  - **Plant ↔ bed plan link:** plant pages have a "Where it is" card: a mini bed plan with the plant's square picked out, rough position ("In the top left corner of …", from `positionWords`) and "Next to …" (`neighbours`, lost plants left out, up to three names plus "N more"). Tapping it opens `#/area/<id>/layout/plant/<plantId>`, which starts with the plant picked (ready to move), a glowing ring once placed, and Back to the plant. Plants without a square get "Give it a square"; lost plants show "Where it was".
+  - Logic (`whereIs`, `spotName`, `neighbours`, `positionWords`, `andList`) in `src/lib/layout.ts`, 63 tests in all.
+- **Next:** going-away mode, or something else Stef picks. Ask Stef.
 - **Claude's workspace:** `npm install` is blocked, but React, esbuild, tsx and TypeScript are in `/opt/npm-tools/node_modules`. Symlink them into `node_modules/` to run `npm test` and `npm run build`. There are no React types there, so `.tsx` can't be type-checked; the click-through covers that.
 - **Delivering changes:** with Stef's `Desktop\mary-mary` folder connected, write the changed files straight into it (update the existing files, don't make copies). Stef then Commits and Pushes in GitHub Desktop.
 - The repo is public, which is needed for free GitHub Pages. Stef places `.github/workflows` files by hand, because remote tools can't write there.

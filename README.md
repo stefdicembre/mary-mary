@@ -6,7 +6,7 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 **Live app:** https://stefdicembre.github.io/mary-mary/
 
-## What it does so far (version 0.6)
+## What it does so far (version 0.7)
 
 - **Home:** a greeting, your garden areas, and any plants that need a look.
 - **Garden areas:** add, edit or remove areas, with which way they face, soil and notes.
@@ -27,7 +27,9 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 - **Harvest log** (new in 0.6): in the Menu, or "+ I picked some" on any fruit, veg or herb plant. Tap what you picked (or type "Something else", like blackberries from the hedge), then how much: a few, a handful, a bowlful, a trugful, or count them. Add a weight if you weighed it. "Add to the garden diary" is there if you want it (off to start with). The log shows each crop's year so far ("Picked 6 times · 23 in all · 2.1 kg"), how that compares with this time last year, and every picking by month. Tap "Change" to fix or remove one. After a picking job like "Pick courgettes and beans often", Done recently offers "+ Harvest". Settings can save the log as a spreadsheet (CSV).
 
-Possible next steps: linking a plant page to its square on the bed plan, and going-away mode. Sharing with Cath comes later.
+- **Where it is** (new in 0.7): every plant page shows a little map of its bed with the plant's square picked out, roughly where that is ("In the top left corner of The Courtyard") and what's next to it. Tap it to open the bed plan with that plant already picked, ready to move. Plants without a square get "Give it a square", which opens the bed plan ready to tap a square. Plants that didn't make it show where they were.
+
+Possible next steps: going-away mode. Sharing with Cath comes later.
 
 ## Putting a change live
 
@@ -44,7 +46,7 @@ Possible next steps: linking a plant page to its square on the bed plan, and goi
 - Supplies: `src/lib/supplies.ts` (matching jobs to supplies by name, using up and putting back, tested in `supplies.test.ts`) and `src/screens/Supplies.tsx`. Seasonal jobs list what they use (`uses` in `SEASONAL`); your own jobs are matched by words in their title and "Anything you'll need?". Each supply counts `wear` in thirds of a level, and a done job records `supplyUse` so Undo is exact.
 - Harvest log: `src/lib/harvest.ts` (adding, changing and removing pickings with their diary line, crop totals that join "Tomatoes" and "Tomato 'Sungold'", last-year comparison, CSV; tested in `harvest.test.ts`) and `src/screens/Harvest.tsx`. Pickings are `GardenData.harvests`; only plants in the Fruit, Vegetables and Herbs sections are offered.
 - Diary photos: `src/lib/photos.ts`, kept in their own IndexedDB store. Unused photos are tidied when the app starts.
-- Layout: `src/lib/layout.ts` (map boxes and bed plan squares, tested in `layout.test.ts`) and `src/screens/Layout.tsx`. Bed plans are tidied after every change (`tidyBedPlans`) so they never point at deleted or moved plants.
+- Layout: `src/lib/layout.ts` (map boxes and bed plan squares, tested in `layout.test.ts`) and `src/screens/Layout.tsx`. `whereIs`, `neighbours` and `positionWords` power the "Where it is" card on plant pages; `#/area/<id>/layout/plant/<plantId>` opens a bed plan with that plant picked. Bed plans are tidied after every change (`tidyBedPlans`) so they never point at deleted or moved plants.
 - Planner: `src/lib/catalogue.ts` (built-in UK plant list, general advice) and `src/lib/plan.ts` (filtering and scoring).
 - Data lives in IndexedDB (`src/lib/db.ts`) as one document (`GardenData` in `src/lib/types.ts`).
 - All changes to the data go through small pure functions in `src/lib/actions.ts`.

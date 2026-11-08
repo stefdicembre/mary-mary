@@ -417,9 +417,16 @@ export function MapScreen() {
 
 type Pick = { item: BedItem; spotId?: string } | null;
 
-export function BedPlanScreen({ areaId }: { areaId: string }) {
+export function BedPlanScreen({ areaId, plantId }: { areaId: string; plantId?: string }) {
   const { garden, update } = useStore();
-  const [pick, setPick] = useState<Pick>(null);
+  // Opened from a plant page: start with that plant picked, ready to place or move.
+  const fromPlant = plantId ? garden.plants.find((p) => p.id === plantId && p.areaId === areaId) : undefined;
+  const [pick, setPick] = useState<Pick>(() => {
+    if (!fromPlant) return null;
+    const spot = bedPlanFor(garden, areaId).spots.find((s) => s.plantId === fromPlant.id);
+    if (spot) return { item: { plantId: fromPlant.id }, spotId: spot.id };
+    return fromPlant.status === "lost" ? null : { item: { plantId: fromPlant.id } };
+  });
   const [sizing, setSizing] = useState(false);
   const area = garden.areas.find((a) => a.id === areaId);
   if (!area) return <NotFound what="area" />;
@@ -457,7 +464,8 @@ export function BedPlanScreen({ areaId }: { areaId: string }) {
         return;
       }
       const item = pick.item;
-      update((g) => placeInBed(g, areaId, x, y, item));
+      const name = fromPlant && "plantId" in item && item.plantId === fromPlant.id && !pick.spotId ? describe({ plantId: fromPlant.id }).name : undefined;
+      update((g) => placeInBed(g, areaId, x, y, item), name ? `${name} has its square` : undefined);
       setPick(null);
       return;
     }
@@ -470,11 +478,12 @@ export function BedPlanScreen({ areaId }: { areaId: string }) {
       const s = plan.spots.find((sp) => sp.x === x && sp.y === y);
       const info = s ? describe(s) : undefined;
       const selected = !!s && s.id === pick?.spotId;
+      const focus = !pick && !!fromPlant && s?.plantId === fromPlant.id;
       cells.push(
         <button
           key={`${x}-${y}`}
           type="button"
-          className={`bed-cell${pick && !selected ? " target" : ""}${selected ? " selected" : ""}`}
+          className={`bed-cell${pick && !selected ? " target" : ""}${selected ? " selected" : ""}${focus ? " focus" : ""}`}
           onClick={() => tapCell(x, y)}
           aria-label={info ? `${info.name}${info.status === "lost" ? ", was here" : info.planned ? ", planned" : ""}` : `Empty square ${x + 1} across, ${y + 1} down`}
         >
@@ -490,7 +499,11 @@ export function BedPlanScreen({ areaId }: { areaId: string }) {
 
   return (
     <>
-      <BackBar to={href({ page: "area", id: areaId })} label={area.name} />
+      {fromPlant ? (
+        <BackBar to={href({ page: "plant", id: fromPlant.id })} label={describe({ plantId: fromPlant.id }).name} />
+      ) : (
+        <BackBar to={href({ page: "area", id: areaId })} label={area.name} />
+      )}
       <div className="stack-sm">
         <h1>What's where</h1>
         <p className="sub">{area.name}. Handy in winter, when things have died back.</p>
@@ -517,7 +530,7 @@ export function BedPlanScreen({ areaId }: { areaId: string }) {
                 : "Now tap a square to put it there."}
           </p>
           <div className="chips">
-            {pickedSpot?.plantId && (
+            {pickedSpot?.plantId && pickedSpot.plantId !== fromPlant?.id && (
               <a className="chip" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }} href={href({ page: "plant", id: pickedSpot.plantId })}>
                 Open plant
               </a>

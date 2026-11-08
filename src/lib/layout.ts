@@ -256,3 +256,56 @@ export function shortLabel(name: string): string {
   const first = name.replace(/'.*$/, "").trim();
   return first.length > 11 ? first.slice(0, 10) + "…" : first;
 }
+
+// ── From a plant to its square (v0.7) ────────────────────────────
+
+/** Where a plant sits on its area's bed plan, if it has a square. */
+export function whereIs(g: GardenData, plantId: string): { areaId: string; plan: BedPlan; spot: BedSpot } | undefined {
+  const plant = g.plants.find((p) => p.id === plantId);
+  if (!plant) return undefined;
+  const plan = g.bedPlans[plant.areaId];
+  const spot = plan?.spots.find((s) => s.plantId === plantId);
+  return plan && spot ? { areaId: plant.areaId, plan, spot } : undefined;
+}
+
+/** A plant's or planned plant's full name for a square: "Dahlia 'Bishop'". */
+export function spotName(g: GardenData, s: { plantId?: string; plannedId?: string }): string {
+  if (s.plantId) {
+    const p = g.plants.find((x) => x.id === s.plantId);
+    return p ? (p.variety ? `${p.name} '${p.variety}'` : p.name) : "";
+  }
+  return g.planned.find((x) => x.id === s.plannedId)?.name ?? "";
+}
+
+/**
+ * What's in the squares around one square (including corners), nearest first.
+ * Plants that didn't make it are left out: they're not there any more.
+ */
+export function neighbours(g: GardenData, areaId: string, x: number, y: number): BedSpot[] {
+  const plan = g.bedPlans[areaId];
+  if (!plan) return [];
+  const lost = (s: BedSpot) => !!s.plantId && g.plants.find((p) => p.id === s.plantId)?.status === "lost";
+  return plan.spots
+    .filter((s) => !(s.x === x && s.y === y) && Math.abs(s.x - x) <= 1 && Math.abs(s.y - y) <= 1 && !lost(s))
+    .sort((a, b) => Math.abs(a.x - x) + Math.abs(a.y - y) - (Math.abs(b.x - x) + Math.abs(b.y - y)) || a.y - b.y || a.x - b.x);
+}
+
+/**
+ * Roughly where a square is on the plan, as drawn:
+ * "in the top left corner", "along the top", "down the left side", "in the middle".
+ */
+export function positionWords(plan: { cols: number; rows: number }, x: number, y: number): string {
+  const third = (n: number, size: number) => (size === 1 ? 1 : Math.round((n / (size - 1)) * 2));
+  const across = ["left", "", "right"][third(x, plan.cols)];
+  const down = ["top", "", "bottom"][third(y, plan.rows)];
+  if (across && down) return `in the ${down} ${across} corner`;
+  if (down) return `along the ${down}`;
+  if (across) return `down the ${across} side`;
+  return "in the middle";
+}
+
+/** Joins names in plain English: "A", "A and B", "A, B and C". */
+export function andList(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}

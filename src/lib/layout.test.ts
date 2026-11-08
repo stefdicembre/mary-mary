@@ -18,6 +18,11 @@ import {
   tidyBedPlans,
   turn,
   turnNorth,
+  whereIs,
+  spotName,
+  neighbours,
+  positionWords,
+  andList,
 } from "./layout";
 import type { GardenData } from "./types";
 
@@ -153,4 +158,39 @@ test("squares are tidied when a plant is deleted or moved, but lost plants keep 
 test("short labels for squares", () => {
   assert.equal(shortLabel("Dahlia 'Bishop of Llandaff'"), "Dahlia");
   assert.equal(shortLabel("Chrysanthemum"), "Chrysanthe…");
+});
+
+test("a plant can find its square and what's around it", () => {
+  let g = emptyGarden(true);
+  const areaId = g.areas[0].id;
+  let rose: string, lav: string, sage: string, far: string;
+  [g, rose] = addPlant(g, { name: "Rose", variety: "Gertrude Jekyll", areaId, section: "Roses" });
+  [g, lav] = addPlant(g, { name: "Lavender", areaId, section: "Herbs" });
+  [g, sage] = addPlant(g, { name: "Sage", areaId, section: "Herbs" });
+  [g, far] = addPlant(g, { name: "Fern", areaId, section: "Perennials" });
+  assert.equal(whereIs(g, rose), undefined); // no square yet
+  g = { ...g, planned: [{ id: "pl1", areaId, name: "Tulip", section: "Bulbs", addedOn: "2026-11-08" }] };
+  g = placeInBed(g, areaId, 2, 1, { plantId: rose });
+  g = placeInBed(g, areaId, 3, 2, { plantId: lav }); // corner
+  g = placeInBed(g, areaId, 2, 0, { plantId: sage }); // straight above
+  g = placeInBed(g, areaId, 1, 1, { plannedId: "pl1" }); // straight left
+  g = placeInBed(g, areaId, 5, 3, { plantId: far }); // not next to it
+  const w = whereIs(g, rose)!;
+  assert.deepEqual([w.areaId, w.spot.x, w.spot.y], [areaId, 2, 1]);
+  assert.equal(spotName(g, w.spot), "Rose 'Gertrude Jekyll'");
+  assert.deepEqual(neighbours(g, areaId, 2, 1).map((s) => spotName(g, s)), ["Sage", "Tulip", "Lavender"]);
+  g = tidyBedPlans(updatePlant(g, sage, { status: "lost" }));
+  assert.deepEqual(neighbours(g, areaId, 2, 1).map((s) => spotName(g, s)), ["Tulip", "Lavender"]);
+  assert.ok(whereIs(g, sage)); // lost plants still know where they were
+  assert.equal(andList(["A", "B", "C"]), "A, B and C");
+});
+
+test("rough position words for a square", () => {
+  const plan = { cols: 6, rows: 4 };
+  assert.equal(positionWords(plan, 0, 0), "in the top left corner");
+  assert.equal(positionWords(plan, 5, 3), "in the bottom right corner");
+  assert.equal(positionWords(plan, 2, 1), "in the middle");
+  assert.equal(positionWords(plan, 0, 2), "down the left side");
+  assert.equal(positionWords(plan, 3, 0), "along the top");
+  assert.equal(positionWords({ cols: 1, rows: 1 }, 0, 0), "in the middle");
 });

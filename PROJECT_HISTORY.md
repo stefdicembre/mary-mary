@@ -2,7 +2,7 @@
 
 The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
-_Last updated: 8 November 2026 (v0.6)_
+_Last updated: 8 November 2026 (v0.7)_
 
 ## What Mary Mary is
 
@@ -52,6 +52,11 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
     - 61 tests pass. Clicked through on an iPhone-sized screen.
     - First time the changed files were written straight into Stef's `Desktop\mary-mary` folder (Stef granted folder access), instead of being sent for copying by hand.
 
+16. **v0.6 pushed** (confirmed 8 Nov).
+17. **8 Nov: version 0.7, plant pages linked to the bed plan.**
+    - "Where it is" card on each plant page: mini bed plan, rough position, what's next to it, and a tap through to the bed plan with that plant picked. "Give it a square" for plants not placed yet.
+    - 63 tests pass. Clicked through on an iPhone-sized screen.
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -73,5 +78,5 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Next steps
 
-1. Stef: commit and push v0.6 in GitHub Desktop.
-2. Then, to choose: link a plant page to its square on the bed plan, or going-away mode.
+1. Stef: commit and push v0.7 in GitHub Desktop.
+2. Then, to choose: going-away mode, or something else.
