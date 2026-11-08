@@ -87,5 +87,13 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
   - Ticking off a job uses up its supplies: small use = 1, big use (`lots`) = 3, a level drops at 3 (`Supply.wear`). `Task.supplyUse` lets Undo put back exactly that. Setting a level by hand resets the count.
   - Seasonal jobs have `uses` in `SEASONAL`; own jobs match supply names in their title/notes. Job rows show "Needs …" and Home shows a note when a supply this week's jobs need is low or gone.
   - Logic in `src/lib/supplies.ts`, tests in `supplies.test.ts` (51 tests in all). Also fixed "Does well here" on a struggling plant not being saved.
-- **Next:** the harvest log.
+- **v0.6 (8 Nov 2026):**
+  - **Harvest log** (`#/harvest`, from the Menu): fruit, veg and herbs only (Stef's choice). "I picked something" form: plant chips (Fruit / Vegetables / Herbs sections) plus recent typed names and "Something else"; easy sizes (a few / handful / bowlful / trugful), optional count stepper, optional weight (g or kg, stored as grams); Today / Yesterday / date; note; "Add to the garden diary" off by default.
+  - Log screen: "This year so far" totals per crop (plurals and varieties joined by `cropKey`), "By now last year", pickings by month with Change (edit/remove, with Undo), year chips once there's more than one year.
+  - Plant pages for edible plants show a Harvest card with "+ I picked some". Done recently offers "+ Harvest" after picking jobs (`isPickingJob`). Settings saves the log as CSV.
+  - Data: `GardenData.harvests` (`Harvest` in types.ts), filled in by `upgrade()`. Deleting a plant keeps its pickings under the name; removing a picking removes the diary line Mary Mary wrote for it, and an edited picking only rewrites that line if it hasn't been changed by hand.
+  - Logic in `src/lib/harvest.ts`, tests in `harvest.test.ts` (61 tests in all).
+- **Next:** possibly link a plant page to its square on the bed plan, or going-away mode. Ask Stef.
+- **Claude's workspace:** `npm install` is blocked, but React, esbuild, tsx and TypeScript are in `/opt/npm-tools/node_modules`. Symlink them into `node_modules/` to run `npm test` and `npm run build`. There are no React types there, so `.tsx` can't be type-checked; the click-through covers that.
+- **Delivering changes:** with Stef's `Desktop\mary-mary` folder connected, write the changed files straight into it (update the existing files, don't make copies). Stef then Commits and Pushes in GitHub Desktop.
 - The repo is public, which is needed for free GitHub Pages. Stef places `.github/workflows` files by hand, because remote tools can't write there.

@@ -65,6 +65,7 @@ export function emptyGarden(withStarterAreas: boolean): GardenData {
     map: defaultMap(),
     bedPlans: {},
     supplies: [],
+    harvests: [],
   });
 }
 
@@ -85,6 +86,7 @@ export function upgrade(g: GardenData): GardenData {
     map: { ...defaultMap(), ...map, areas: map.areas ?? {}, features: map.features ?? [] },
     bedPlans: g.bedPlans ?? {},
     supplies: (g.supplies ?? []).map((s) => ({ ...s, wear: s.wear ?? 0 })),
+    harvests: g.harvests ?? [],
   };
   return tidyBedPlans(filled);
 }

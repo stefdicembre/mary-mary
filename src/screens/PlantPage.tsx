@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { deletePlant, markRecovered, updatePlant } from "../lib/actions";
-import { shortDate } from "../lib/dates";
+import { shortDate, todayISO } from "../lib/dates";
+import { amountText, isEdible, plantHarvests, totalText } from "../lib/harvest";
 import { lessonFor, setbackSummary } from "../lib/reasons";
 import { go, href } from "../router";
 import { useStore } from "../store";
@@ -106,6 +107,43 @@ export function PlantPage({ id }: { id: string }) {
           </button>
         </div>
       )}
+
+      {(isEdible(plant) || garden.harvests.some((h) => h.plantId === id)) && (() => {
+        const year = Number(todayISO().slice(0, 4));
+        const picks = plantHarvests(garden, id, year);
+        const grams = picks.reduce((n, h) => n + (h.grams ?? 0), 0);
+        const count = picks.reduce((n, h) => n + (h.count ?? 0), 0);
+        return (
+          <div className="stack">
+            <h2>Harvest</h2>
+            <div className="card stack" style={{ gap: 6 }}>
+              {picks.length === 0 ? (
+                <p className="body">Nothing picked from it yet this year.</p>
+              ) : (
+                <>
+                  <p className="body" style={{ fontWeight: 600 }}>{totalText({ times: picks.length, count, grams })} this year</p>
+                  <p className="hint">
+                    Last picked {shortDate(picks[0].date)}
+                    {amountText(picks[0]) ? `: ${amountText(picks[0]).toLowerCase()}` : ""}
+                  </p>
+                </>
+              )}
+              <div className="btn-row" style={{ marginTop: 4 }}>
+                {plant.status !== "lost" && (
+                  <a className="btn outline small" href={href({ page: "harvestNew", plantId: id })}>
+                    + I picked some
+                  </a>
+                )}
+                {garden.harvests.length > 0 && (
+                  <a className="btn quiet" href={href({ page: "harvest" })} style={{ flex: "none" }}>
+                    Harvest log
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {history.length > 0 && (
         <div className="stack">

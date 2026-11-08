@@ -25,6 +25,9 @@ export type Route =
   | { page: "editPlant"; id: string }
   | { page: "map" }
   | { page: "supplies" }
+  | { page: "harvest"; year?: number }
+  | { page: "harvestNew"; plantId?: string; taskId?: string }
+  | { page: "harvestEdit"; id: string }
   | { page: "bedPlan"; areaId: string }
   | { page: "setback"; id: string; outcome: "struggling" | "died" | "removed" };
 
@@ -53,6 +56,15 @@ export function parse(hash: string): Route {
       return { page: "map" };
     case "supplies":
       return { page: "supplies" };
+    case "harvest":
+      if (b === "new") {
+        if (c === "plant" && d) return { page: "harvestNew", plantId: d };
+        if (c === "task" && d) return { page: "harvestNew", taskId: d };
+        return { page: "harvestNew" };
+      }
+      if (b === "year" && c && /^\d{4}$/.test(c)) return { page: "harvest", year: Number(c) };
+      if (b && c === "edit") return { page: "harvestEdit", id: b };
+      return { page: "harvest" };
     case "settings":
       return { page: "settings" };
     case "lost":
@@ -114,6 +126,14 @@ export function href(r: Route): string {
       return "#/map";
     case "supplies":
       return "#/supplies";
+    case "harvest":
+      return r.year ? `#/harvest/year/${r.year}` : "#/harvest";
+    case "harvestNew":
+      if (r.plantId) return `#/harvest/new/plant/${encodeURIComponent(r.plantId)}`;
+      if (r.taskId) return `#/harvest/new/task/${encodeURIComponent(r.taskId)}`;
+      return "#/harvest/new";
+    case "harvestEdit":
+      return `#/harvest/${encodeURIComponent(r.id)}/edit`;
     case "bedPlan":
       return `#/area/${encodeURIComponent(r.areaId)}/layout`;
     case "newArea":

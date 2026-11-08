@@ -321,3 +321,8 @@ label.btn { position: relative; }
 .short-note p { margin: 0; font-size: 13px; line-height: 1.4; }
 .job-needs { font-size: 12px; color: var(--ink-2); }
 .job-needs .low { color: var(--amber-ink); font-weight: 600; }
+
+/* Harvest log (v0.6) */
+.stepper { display: flex; align-items: center; gap: 8px; }
+.stepper .chip { width: 44px; min-height: 44px; padding: 0; font-size: 20px; font-weight: 700; justify-content: center; }
+.stepper .input { width: 64px; text-align: center; font-size: 17px; font-weight: 600; }

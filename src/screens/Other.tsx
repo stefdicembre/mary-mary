@@ -2,9 +2,10 @@ import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { updateSettings } from "../lib/actions";
 import { isGardenData, plantsToCSV } from "../lib/data";
+import { harvestsIn, harvestsToCSV } from "../lib/harvest";
 import { shortDate, todayISO } from "../lib/dates";
 import { setbackSummary } from "../lib/reasons";
-import { IconBag, IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconMap, IconNext, SkyIcon } from "../icons";
+import { IconBag, IconBasket, IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconMap, IconNext, SkyIcon } from "../icons";
 import { exportPhotos, importPhotos } from "../lib/photos";
 import { photosInUse } from "../lib/actions";
 import { findPlace } from "../lib/weatherApi";
@@ -16,6 +17,7 @@ export function Menu() {
   const { garden } = useStore();
   const lostCount = garden.plants.filter((p) => p.status === "lost").length;
   const lowCount = garden.supplies.filter((s) => s.level !== "plenty").length;
+  const pickedThisYear = harvestsIn(garden, Number(todayISO().slice(0, 4))).length;
   const item = (to: string, icon: ReactNode, title: string, sub: string) => (
     <a className="list-item" href={to} style={{ minHeight: 68 }}>
       <span style={{ flex: "none", width: 40, height: 40, borderRadius: "50%", background: "var(--green-pale)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -39,13 +41,13 @@ export function Menu() {
       <div className="list">
         {item(href({ page: "jobs" }), <IconCheck />, "Jobs", "This week's jobs, and what you've done")}
         {item(href({ page: "diary" }), <IconBook />, "Garden diary", "See how your garden has grown")}
+        {item(href({ page: "harvest" }), <IconBasket />, "Harvest log", pickedThisYear ? `${pickedThisYear} ${pickedThisYear === 1 ? "picking" : "pickings"} this year` : "What you've picked, and how much")}
         {item(href({ page: "supplies" }), <IconBag />, "Supplies", lowCount ? `${lowCount} running low or used up` : "What's in the shed, and what your jobs need")}
         {item(href({ page: "map" }), <IconMap />, "Garden map", "Where everything is, and what's planted where")}
         {item(href({ page: "weather" }), <SkyIcon sky="partly" size={24} />, "Weather", "The week ahead, and what it means for the garden")}
         {item(href({ page: "lost" }), <IconLeaf size={22} />, "Didn't make it", lostCount ? `${lostCount} ${lostCount === 1 ? "plant" : "plants"} to learn from` : "Nothing lost so far")}
         {item(href({ page: "settings" }), <IconCog size={22} color="#3B6D11" />, "Settings and backup", "Your garden's name, and saving a copy")}
       </div>
-      <p className="hint">Coming next: the harvest log.</p>
     </>
   );
 }
@@ -123,7 +125,7 @@ export function Settings() {
   const fileRef = useRef<HTMLInputElement>(null);
   const stamp = todayISO();
 
-  const counts = `${garden.areas.length} areas, ${garden.plants.length} plants, ${garden.journal.length} diary entries`;
+  const counts = `${garden.areas.length} areas, ${garden.plants.length} plants, ${garden.journal.length} diary entries${garden.harvests.length ? `, ${garden.harvests.length} pickings` : ""}`;
 
   return (
     <>
@@ -213,6 +215,12 @@ export function Settings() {
           <IconDownload size={20} />
           Plants as a spreadsheet (CSV)
         </button>
+        {garden.harvests.length > 0 && (
+          <button type="button" className="btn outline" onClick={() => saveFile(`mary-mary-harvests-${stamp}.csv`, "text/csv", harvestsToCSV(garden))}>
+            <IconDownload size={20} />
+            Harvest log as a spreadsheet (CSV)
+          </button>
+        )}
 
         <div className="field" style={{ marginTop: 6 }}>
           <span className="flabel">Restore from a backup</span>

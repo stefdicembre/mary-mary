@@ -2,7 +2,7 @@
 
 The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
-_Last updated: 8 November 2026 (v0.5)_
+_Last updated: 8 November 2026 (v0.6)_
 
 ## What Mary Mary is
 
@@ -46,6 +46,12 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
     - Jobs use up supplies when ticked off (small jobs add up, big jobs drop a level), and Undo puts them back.
     - 51 tests pass. Clicked through on an iPhone-sized screen.
 
+14. **v0.5 pushed** (confirmed 8 Nov).
+15. **8 Nov: version 0.6, harvest log.** Stef chose easy sizes (with count and weight optional), fruit, veg and herbs only (no cut flowers), and diary optional and off by default.
+    - Log with year-so-far totals and last-year comparison, a quick "I picked something" form, a Harvest card on plant pages, "+ Harvest" after picking jobs, and a CSV export.
+    - 61 tests pass. Clicked through on an iPhone-sized screen.
+    - First time the changed files were written straight into Stef's `Desktop\mary-mary` folder (Stef granted folder access), instead of being sent for copying by hand.
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -57,6 +63,7 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
   - Data in IndexedDB, with JSON backup and CSV export.
 - **Setback tips** are worded as general UK advice ("Net it from late spring…"). They don't promise features that aren't built yet.
 - **How Stef works:** plain English, small steps, ask before big decisions, keep the README current. Stef uses GitHub Desktop and no command line.
+- **Edit files in place:** changes go into the existing files (in the app folder and in these project notes), never as new copies.
 
 ## Open questions
 
@@ -66,5 +73,5 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Next steps
 
-1. Stef: commit and push v0.5.
-2. Then: the harvest log. Possible later: link a plant page to its square on the bed plan.
+1. Stef: commit and push v0.6 in GitHub Desktop.
+2. Then, to choose: link a plant page to its square on the bed plan, or going-away mode.

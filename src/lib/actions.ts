@@ -39,6 +39,8 @@ export function deletePlant(g: GardenData, id: string): GardenData {
     ...g,
     plants: g.plants.filter((p) => p.id !== id),
     setbacks: g.setbacks.filter((s) => s.plantId !== id),
+    // Pickings stay in the harvest log under the plant's name.
+    harvests: g.harvests.map((h) => (h.plantId === id ? { ...h, plantId: undefined } : h)),
     journal: g.journal
       .map((j) => ({ ...j, plantIds: j.plantIds.filter((x) => x !== id) }))
       .filter((j) => !(j.setbackId && g.setbacks.some((s) => s.id === j.setbackId && s.plantId === id))),
@@ -175,12 +177,13 @@ export function updateEntry(g: GardenData, id: string, changes: Partial<JournalE
   return { ...g, journal: g.journal.map((j) => (j.id === id ? { ...j, ...changes, id } : j)) };
 }
 
-/** Removes a diary entry. The setback or job it came from stays. */
+/** Removes a diary entry. The setback, job or picking it came from stays. */
 export function removeEntry(g: GardenData, id: string): GardenData {
   return {
     ...g,
     journal: g.journal.filter((j) => j.id !== id),
     setbacks: g.setbacks.map((s) => (s.journalEntryId === id ? { ...s, journalEntryId: undefined } : s)),
+    harvests: g.harvests.map((h) => (h.journalEntryId === id ? { ...h, journalEntryId: undefined } : h)),
   };
 }
 

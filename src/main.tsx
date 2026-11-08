@@ -16,6 +16,7 @@ import { WeatherProvider } from "./weatherStore";
 import { DidSomethingForm, JobForm, JobsScreen } from "./screens/Jobs";
 import { BedPlanScreen, MapScreen } from "./screens/Layout";
 import { SuppliesScreen } from "./screens/Supplies";
+import { HarvestForm, HarvestScreen } from "./screens/Harvest";
 import { DiaryEntryScreen, DiaryForm, DiaryScreen } from "./screens/Diary";
 
 function Screen() {
@@ -35,6 +36,12 @@ function Screen() {
       return <MapScreen />;
     case "supplies":
       return <SuppliesScreen />;
+    case "harvest":
+      return <HarvestScreen key={r.year ?? "now"} year={r.year} />;
+    case "harvestNew":
+      return <HarvestForm key={`new-${r.plantId}-${r.taskId}`} plantId={r.plantId} taskId={r.taskId} />;
+    case "harvestEdit":
+      return <HarvestForm key={`edit-${r.id}`} id={r.id} />;
     case "bedPlan":
       return <BedPlanScreen key={r.areaId} areaId={r.areaId} />;
     case "plan":

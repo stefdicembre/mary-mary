@@ -148,6 +148,35 @@ export interface GardenData {
   bedPlans: Record<string, BedPlan>;
   /** What's in the shed (v0.5). */
   supplies: Supply[];
+  /** What's been picked: fruit, veg and herbs (v0.6). */
+  harvests: Harvest[];
+}
+
+// ── Harvest log (v0.6) ───────────────────────────────────────────
+
+/** Quick sizes for muddy hands. */
+export type HarvestSize = "few" | "handful" | "bowl" | "trug";
+
+/** One picking: "a bowlful of tomatoes from the greenhouse". */
+export interface Harvest {
+  id: string;
+  date: string; // YYYY-MM-DD
+  /** The plant it came from, if it's one of the garden's plants. */
+  plantId?: string;
+  /** What was picked, kept as written (or the plant's name at the time). */
+  name: string;
+  areaId?: string;
+  /** How much: a quick size, or a count. Either, both or neither. */
+  size?: HarvestSize;
+  count?: number;
+  /** Weight in grams, if it was weighed. */
+  grams?: number;
+  note?: string;
+  /** The diary entry made with it, if "Add to the garden diary" was on. */
+  journalEntryId?: string;
+  /** The picking job it was logged from, if any. */
+  taskId?: string;
+  createdAt: string;
 }
 
 // ── Garden layout (v0.4) ─────────────────────────────────────────

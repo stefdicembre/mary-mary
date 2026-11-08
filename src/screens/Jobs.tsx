@@ -10,6 +10,7 @@ import { useStore } from "../store";
 import { BackBar, Chips, Switch } from "../ui";
 import { useWeather } from "../weatherStore";
 import { PhotoPicker } from "./Diary";
+import { isPickingJob } from "../lib/harvest";
 
 const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const dueWords = (due: string, today: string) => {
@@ -214,6 +215,14 @@ export function JobsScreen() {
                     + Diary
                   </a>
                 )}
+                {isPickingJob(t.title) &&
+                  (garden.harvests.some((h) => h.taskId === t.id) ? (
+                    <span className="tag green">In the harvest log</span>
+                  ) : (
+                    <a className="btn quiet" style={{ minHeight: 40, fontSize: 13 }} href={href({ page: "harvestNew", taskId: t.id })}>
+                      + Harvest
+                    </a>
+                  ))}
                 <button type="button" className="btn quiet" style={{ minHeight: 40, fontSize: 13 }} onClick={() => update((g) => undoDone(g, t.id), "Back on the list", true)}>
                   Undo
                 </button>

@@ -200,3 +200,9 @@ export const IconBox = ({ size = 20, color = "#633806" }: P) => (
     <path d="M3 7l9 4 9-4M12 11v10" />
   </svg>
 );
+export const IconBasket = ({ size = 22, color = "#3B6D11" }: P) => (
+  <svg {...base(size, color, 1.6)}>
+    <path d="M3 10h18l-2 9H5z" />
+    <path d="M8 10l3-6M16 10l-3-6M9 14v2M12 14v2M15 14v2" />
+  </svg>
+);
