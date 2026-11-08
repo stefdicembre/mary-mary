@@ -288,6 +288,13 @@ export function Settings() {
         </div>
       </div>
 
+      <SetupSettings
+        onBackup={async () => {
+          const photos = await exportPhotos(Array.from(photosInUse(garden))).catch(() => ({}));
+          await saveFile(`mary-mary-backup-${stamp}.json`, "application/json", JSON.stringify({ ...garden, photos }));
+        }}
+      />
+
       <p className="hint" style={{ marginTop: 16 }}>
         Mary Mary, version {__APP_VERSION__}
       </p>
@@ -296,6 +303,52 @@ export function Settings() {
 }
 
 declare const __APP_VERSION__: string;
+
+/** Settings → First-time setup: try it out, or start the garden afresh (v1.0). */
+function SetupSettings({ onBackup }: { onBackup: () => Promise<void> }) {
+  const [asking, setAsking] = useState(false);
+  const [backedUp, setBackedUp] = useState(false);
+  return (
+    <div className="stack" style={{ marginTop: 10 }}>
+      <h2>First-time setup</h2>
+      <p className="body">See the questions a new gardener is asked when they first open Mary Mary. Trying it out doesn't change anything.</p>
+      <a className="btn outline" href={href({ page: "setup", trial: true })}>
+        Try first-time setup
+      </a>
+      {!asking ? (
+        <button type="button" className="btn quiet" onClick={() => setAsking(true)}>
+          Start afresh…
+        </button>
+      ) : (
+        <div className="card stack">
+          <p className="body">
+            <strong>Start afresh?</strong> You'll go through first-time setup, and when you finish it replaces everything on this phone: areas, plants, jobs, diary and harvests.
+          </p>
+          <button
+            type="button"
+            className="btn outline"
+            onClick={async () => {
+              await onBackup();
+              setBackedUp(true);
+            }}
+          >
+            <IconDownload size={20} />
+            {backedUp ? "Backup saved. Save another" : "Save a backup first"}
+          </button>
+          <div className="btn-row">
+            <a className="btn danger" href={href({ page: "setup" })}>
+              Start afresh
+            </a>
+            <button type="button" className="btn quiet" onClick={() => setAsking(false)}>
+              Cancel
+            </button>
+          </div>
+          <p className="hint">Nothing changes until you tap Finish at the end. You can leave part way and your garden stays as it is.</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const PARTS: Array<[string, string]> = [["05", "Early"], ["15", "Mid"], ["25", "Late"]];

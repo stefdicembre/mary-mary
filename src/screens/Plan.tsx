@@ -4,6 +4,7 @@ import { COLOUR_SCHEMES } from "../lib/data";
 import { todayISO } from "../lib/dates";
 import { PRIORITIES, lessonsFor, makePlan } from "../lib/plan";
 import { frostFor, stepsFor } from "../lib/sowing";
+import { prioritiesFrom } from "../lib/setup";
 import { FrostCard } from "./Frost";
 import type { Goal, Priority } from "../lib/plan";
 import { href } from "../router";
@@ -30,7 +31,7 @@ export function PlanScreen({ areaId }: { areaId: string }) {
   const [view, setView] = useState<"ask" | "result">("ask");
   const [goal, setGoal] = useState<Goal | undefined>();
   const [soil, setSoil] = useState<string | undefined>(area?.soil === "Loamy" ? "Loam" : area?.soil);
-  const [prios, setPrios] = useState<Priority[]>([]);
+  const [prios, setPrios] = useState<Priority[]>(() => prioritiesFrom(garden.settings.likes ?? []));
   if (!area) return <NotFound what="area" />;
 
   const lessons = lessonsFor(garden, area.id);

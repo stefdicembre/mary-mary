@@ -343,3 +343,31 @@ label.btn { position: relative; }
 .steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
 .steps a { color: var(--green-dark); font-weight: 600; }
 .steps code { font-size: 13px; background: var(--green-pale); padding: 1px 5px; border-radius: 5px; }
+
+/* First-time setup (v1.0) */
+.setup { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+.setup-body { flex: 1; display: flex; flex-direction: column; }
+.setup-foot { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.setup-foot .btn.quiet { min-height: 44px; }
+.setup-welcome { flex: 1; min-height: 52dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; }
+.setup-badge { width: 96px; height: 96px; border-radius: 50%; background: var(--green-pale); display: flex; align-items: center; justify-content: center; }
+.setup-dots { display: flex; gap: 6px; }
+.setup-dots span { width: 8px; height: 8px; border-radius: 50%; background: #c9c7be; }
+.setup-dots span.done { background: #9cbf78; }
+.setup-dots span.on { width: 22px; border-radius: 4px; background: var(--green); }
+.setup-trial { margin: -6px 0 0; font-size: 13px; font-weight: 600; color: var(--blue-ink); background: var(--blue-pale); border-radius: 12px; padding: 8px 12px; }
+.setup-tabs { display: flex; gap: 6px; overflow-x: auto; margin: 0 -20px; padding: 0 20px 2px; scrollbar-width: none; }
+.setup-tabs span { flex: none; padding: 6px 12px; border-radius: 16px; font-size: 13px; font-weight: 600; background: var(--card); color: var(--muted); }
+.setup-tabs span.done { background: var(--green-pale); color: var(--green-dark); }
+.setup-tabs span.on { background: var(--green); color: #fff; }
+.days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.days .chip { padding: 0; }
+.aspects { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.aspects .chip { padding: 0; }
+.goal.starter { background: var(--green-pale); border-color: var(--green-pale); }
+.goal.starter .t { color: var(--green-dark); }
+.soon { position: relative; display: flex; flex-direction: column; gap: 8px; border: 1.5px dashed var(--border); border-radius: 16px; padding: 30px 12px 12px; opacity: 0.6; }
+.soon > * { pointer-events: none; }
+.soon .soon-tag { position: absolute; top: 8px; left: 12px; background: var(--line); color: var(--ink-2); }
+.soon .goal, .soon .btn, .soon .chip { opacity: 1; }
+.setup-foot .btn { text-align: center; }

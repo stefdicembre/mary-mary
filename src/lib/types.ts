@@ -117,6 +117,21 @@ export interface GardenSettings {
   location?: { lat: number; lon: number; place: string; forPostcode: string };
   /** When frost usually ends in spring and starts in autumn here (v0.8). */
   frost?: FrostDates;
+  /** Who gardens here, from first-time setup (v1.0). The first is "you". */
+  gardeners?: Gardener[];
+  /** "What matters most to you?" from setup: LIKES in setup.ts, plus anything typed. */
+  likes?: string[];
+  /** When first-time setup was finished (YYYY-MM-DD). */
+  setUpOn?: string;
+  /** A brand new phone that hasn't been through first-time setup yet. */
+  needsSetup?: boolean;
+}
+
+/** Someone who helps in the garden (v1.0). */
+export interface Gardener {
+  name: string;
+  time?: "under1" | "1to3" | "3plus"; // time available in a typical week
+  days: string[]; // "Monday", "Saturday"…
 }
 
 /** This garden's frost dates, worked out from past weather or set by hand (v0.8). */

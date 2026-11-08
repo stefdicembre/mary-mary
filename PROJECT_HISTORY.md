@@ -2,7 +2,7 @@
 
 The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
-_Last updated: 8 November 2026 (v0.9)_
+_Last updated: 8 November 2026 (v1.0)_
 
 ## What Mary Mary is
 
@@ -73,6 +73,12 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
     - GitHub checks the forecast at about 6am and 3pm every day and sends each alert once. Frost alerts name the tender plants.
     - No extra packages: the encryption uses Node's built-in tools and matches the standard's worked example. 78 tests pass. Clicked through on an iPhone-sized screen with stand-ins for the phone's notification parts.
 
+22. **8 Nov: version 1.0, first-time setup.** Stef chose: it runs on a new install (instead of pre-filling the eight areas), with "Try first-time setup" and "Start afresh" in Settings; parts that need things not built yet are shown greyed out as "Coming soon".
+    - Garden name, who's gardening, where it is, areas, what's growing in each, "Not much planted yet?" starter plants (from the planting plan's catalogue), and what matters most (remembered and pre-ticked on the planting plan).
+    - Coming soon: joining a garden and invites, photo recognition, the phone's compass, everyday nudges and quiet time.
+    - Start afresh offers a backup first and only replaces the garden at Finish. A half-done setup picks up where it left off.
+    - 85 tests pass. Clicked through on an iPhone-sized screen: a new phone end to end, a try-out (garden unchanged), and Start afresh.
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -95,5 +101,5 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Next steps
 
-1. Stef: Commit and Push v0.9 in GitHub Desktop, then set up alerts in Settings → Notifications (copy the code into GitHub, run the test).
-2. Other gaps from the wireframe check to choose from: the full "Out in the garden" mode, heavy rain as an urgent warning, Welcome back, First-time setup.
+1. Stef: Commit and Push v1.0 in GitHub Desktop. Set up alerts in Settings → Notifications if not done yet.
+2. Other gaps from the wireframe check to choose from: the full "Out in the garden" mode, heavy rain as an urgent warning, Welcome back.

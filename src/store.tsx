@@ -2,7 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { emptyGarden, upgrade } from "./lib/data";
+import { upgrade } from "./lib/data";
+import { newInstall } from "./lib/setup";
 import { askToKeepData, loadGarden, saveGarden } from "./lib/db";
 import { photosInUse } from "./lib/actions";
 import { tidyBedPlans } from "./lib/layout";
@@ -42,12 +43,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     loadGarden()
       .then((g) => {
-        const garden = g ? upgrade(g) : emptyGarden(true);
+        const garden = g ? upgrade(g) : newInstall();
         setGarden(garden);
         // Clear out photos from diary entries removed in an earlier session.
         if (g) tidyPhotos(photosInUse(garden)).catch(() => undefined);
       })
-      .catch(() => setGarden(emptyGarden(true)));
+      .catch(() => setGarden(newInstall()));
     askToKeepData();
   }, []);
 

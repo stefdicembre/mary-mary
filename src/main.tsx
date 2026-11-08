@@ -17,10 +17,15 @@ import { DidSomethingForm, JobForm, JobsScreen } from "./screens/Jobs";
 import { BedPlanScreen, MapScreen } from "./screens/Layout";
 import { SuppliesScreen } from "./screens/Supplies";
 import { HarvestForm, HarvestScreen } from "./screens/Harvest";
+import { SetupScreen } from "./screens/Setup";
+import { useStore } from "./store";
 import { DiaryEntryScreen, DiaryForm, DiaryScreen } from "./screens/Diary";
 
 function Screen() {
   const r = useRoute();
+  const { garden } = useStore();
+  // A brand new phone starts with first-time setup (Settings stays open, for restoring a backup).
+  if (garden.settings.needsSetup && r.page !== "settings" && !(r.page === "setup" && r.trial)) return <SetupScreen key="real" trial={false} />;
   switch (r.page) {
     case "home":
       return <Home />;
@@ -34,6 +39,8 @@ function Screen() {
       return <WeatherScreen />;
     case "map":
       return <MapScreen />;
+    case "setup":
+      return <SetupScreen key={r.trial ? "try" : "real"} trial={!!r.trial} />;
     case "supplies":
       return <SuppliesScreen />;
     case "harvest":

@@ -24,6 +24,7 @@ export type Route =
   | { page: "plant"; id: string }
   | { page: "editPlant"; id: string }
   | { page: "map" }
+  | { page: "setup"; trial?: boolean }
   | { page: "supplies" }
   | { page: "harvest"; year?: number }
   | { page: "harvestNew"; plantId?: string; taskId?: string }
@@ -54,6 +55,8 @@ export function parse(hash: string): Route {
       return { page: "menu" };
     case "map":
       return { page: "map" };
+    case "setup":
+      return b === "try" ? { page: "setup", trial: true } : { page: "setup" };
     case "supplies":
       return { page: "supplies" };
     case "harvest":
@@ -124,6 +127,8 @@ export function href(r: Route): string {
       return `#/area/${encodeURIComponent(r.areaId)}/plan`;
     case "map":
       return "#/map";
+    case "setup":
+      return r.trial ? "#/setup/try" : "#/setup";
     case "supplies":
       return "#/supplies";
     case "harvest":

@@ -6,7 +6,7 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 **Live app:** https://stefdicembre.github.io/mary-mary/
 
-## What it does so far (version 0.9)
+## What it does so far (version 1.0)
 
 - **Home:** a greeting, your garden areas, and any plants that need a look.
 - **Garden areas:** add, edit or remove areas, with which way they face, soil and notes.
@@ -33,6 +33,8 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 - **Urgent alerts on the lock screen** (new in 0.9): frost tonight (0°C or below), storms (gusts of 55mph or more) and heatwaves (30°C or more), and nothing else. Frost alerts name your tender plants. Turn them on in Settings → Notifications (open the app from its Home Screen icon first). The app makes a private "push code" that you paste into GitHub once, as a secret called `MARY_MARY_PUSH`. GitHub then checks the forecast at about 6am and 3pm every day (an hour later in summer, and GitHub can be up to half an hour late) and sends the alert. Each alert only comes once. If your tender plants or postcode change, Settings asks you to make a new code and paste it over the old one. To send a test: GitHub → Actions → Garden alerts → Run workflow.
 
+- **First-time setup** (new in 1.0): a new phone opens with a few friendly questions, following the wireframe: the garden's name, who's gardening (time and days), where it is (for weather), its areas (from idea chips or your own names), what's growing in each area (by name, or "I'm not sure" with a description), "Not much planted yet?" (which way it faces, room, soil and what matters, then a short list of easy plants to add as planned), and what matters most. Parts that need things Mary Mary doesn't have yet (invites and joining a garden, photo recognition, the phone's compass, everyday nudges and quiet time) are shown greyed out as "Coming soon". If the app is closed part way, it picks up where you left off. Settings → First-time setup has "Try first-time setup" (nothing is saved) and "Start afresh" (offers a backup first; your garden is only replaced when you tap Finish). What matters to you is remembered and pre-ticked on the planting plan.
+
 Possible next steps: the full "Out in the garden" mode, heavy rain as an urgent warning, a Welcome back screen. Going-away mode is parked. Sharing with Cath comes later.
 
 ## Putting a change live
@@ -52,6 +54,7 @@ Possible next steps: the full "Out in the garden" mode, heavy rain as an urgent 
 - Diary photos: `src/lib/photos.ts`, kept in their own IndexedDB store. Unused photos are tidied when the app starts.
 - Layout: `src/lib/layout.ts` (map boxes and bed plan squares, tested in `layout.test.ts`) and `src/screens/Layout.tsx`. `whereIs`, `neighbours` and `positionWords` power the "Where it is" card on plant pages; `#/area/<id>/layout/plant/<plantId>` opens a bed plan with that plant picked. Bed plans are tidied after every change (`tidyBedPlans`) so they never point at deleted or moved plants.
 - Frost dates and sowing: `src/lib/sowing.ts` (tested in `sowing.test.ts`). `workOutFrost` reads daily lows from Open-Meteo's free history (`archive-api.open-meteo.com`, no key). A night of 2°C or below counts as a frost risk. It takes the date frost is over by in 8 years out of 10 (spring) and the date it holds off until in 8 years out of 10 (autumn). The dates are saved as `settings.frost`, worked out again if the place changes, and never overwritten once set by hand. `SOWING` gives seed-grown plants sow indoors / sow outside / plant out timings, either as fixed months or as weeks around the last frost. Seasonal jobs with `frost` follow the same dates (`dueNow`), and `{last}` / `{first}` in their text become the dates. `weatherStore.tsx` fetches the dates in the background, and `src/screens/Frost.tsx` shows them.
+- First-time setup: `src/lib/setup.ts` (turns the answers into a garden with `gardenFromSetup`, `starterIdeas` reuses the planner, `newInstall` makes the empty garden a new phone starts with; tested in `setup.test.ts`) and `src/screens/Setup.tsx` (`#/setup`, and `#/setup/try` for a try-out that saves nothing). A garden with `settings.needsSetup` always shows setup, except Settings (so a backup can be restored). The answers in progress are kept in IndexedDB (`setup-draft` extra). Gardeners and likes are saved as `settings.gardeners` and `settings.likes`.
 - Planner: `src/lib/catalogue.ts` (built-in UK plant list, general advice) and `src/lib/plan.ts` (filtering and scoring).
 - Data lives in IndexedDB (`src/lib/db.ts`) as one document (`GardenData` in `src/lib/types.ts`).
 - All changes to the data go through small pure functions in `src/lib/actions.ts`.
