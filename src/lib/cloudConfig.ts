@@ -7,8 +7,8 @@
 //
 // Leave them empty and Mary Mary works exactly as before, on one phone.
 
-export const SUPABASE_URL = "";
-export const SUPABASE_KEY = "";
+export const SUPABASE_URL = "https://ziojpvfaypqdmjroezpr.supabase.co";
+export const SUPABASE_KEY = "sb_publishable_-nTI36aUjaqCim_RRMJxeA_HDGNC6dU";
 
 export function cloudReady(url = SUPABASE_URL, key = SUPABASE_KEY): boolean {
   return /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(url) && key.length > 20;

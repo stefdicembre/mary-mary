@@ -84,7 +84,7 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
     - Both phones keep their own copy and catch up with each other (on opening, every 30 seconds, and just after a change). Changes made on both are merged; only the very same thing changed on both goes to the later one. Diary photos are shared too. Your own name stays on your phone.
     - Who's in, removing people (the person who started it), waiting invites, Leave / Stop sharing (everyone keeps their copy).
     - The database rules were tested on a real Postgres; the app was tested with two pretend phones and a pretend Supabase (104 tests, 26-step click-through).
-    - Waiting on Stef to create the Supabase project (steps in the README) and pass on the Project URL and publishable key.
+    - Stef created the Supabase project the same day, and its URL and publishable key were put in `src/lib/cloudConfig.ts`.
 
 ## Decisions made
 
