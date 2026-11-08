@@ -82,5 +82,10 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
   - **Garden map** (`#/map`): areas and features (house, patio, path, shed, tree, compost) as boxes on a 1 m grid. Edit mode: tap to select, drag to move, corner handle to resize, arrow and size buttons, Turn round, garden size, north compass. View mode: tap an area to open it. Smaller shapes draw on top.
   - **Bed plans** (`#/area/<id>/layout`, "What's where"): a grid per area (default two squares per metre from the map, or 6 × 4). Place plants and planned plants, move/swap, take off. Planned → planted keeps the square. Lost plants stay faintly as "was here".
   - Data: `GardenData.map` and `GardenData.bedPlans`, filled in by `upgrade()` for older backups. Logic in `src/lib/layout.ts`; `tidyBedPlans` runs after every change.
-- **Next:** supplies (wireframe Supplies screen) and the harvest log.
+- **v0.5 (8 Nov 2026):**
+  - **Supplies** (`#/supplies`, from the Menu): add (with idea chips), Plenty / Running low / None left, rename, remove, all with Undo. "Needed for" lists this week's jobs that use it; "Next time you're at the garden centre" with Share the list.
+  - Ticking off a job uses up its supplies: small use = 1, big use (`lots`) = 3, a level drops at 3 (`Supply.wear`). `Task.supplyUse` lets Undo put back exactly that. Setting a level by hand resets the count.
+  - Seasonal jobs have `uses` in `SEASONAL`; own jobs match supply names in their title/notes. Job rows show "Needs …" and Home shows a note when a supply this week's jobs need is low or gone.
+  - Logic in `src/lib/supplies.ts`, tests in `supplies.test.ts` (51 tests in all). Also fixed "Does well here" on a struggling plant not being saved.
+- **Next:** the harvest log.
 - The repo is public, which is needed for free GitHub Pages. Stef places `.github/workflows` files by hand, because remote tools can't write there.

@@ -80,7 +80,33 @@ export interface Task {
   seasonalKey?: string;
   /** "Add something I did": a job that wasn't on the list. */
   extra?: boolean;
+  /** Supplies this job used up when it was done, so Undo can put them back (v0.5). */
+  supplyUse?: SupplyUse[];
   createdAt: string;
+}
+
+// ── Supplies (v0.5) ──────────────────────────────────────────────
+
+export type SupplyLevel = "plenty" | "low" | "out";
+
+/** Something kept in the shed: fleece, twine, compost, bone meal. */
+export interface Supply {
+  id: string;
+  name: string;
+  level: SupplyLevel;
+  /**
+   * How much has been used since the level last changed, in thirds of a level.
+   * A small job adds 1, a big one (like mulching) adds 3. At 3 the level drops.
+   */
+  wear: number;
+  /** Set when Mary Mary lowered the level after a job, rather than the gardener. */
+  lowered?: { by: string; on: string }; // job title, YYYY-MM-DD
+  createdAt: string;
+}
+
+export interface SupplyUse {
+  supplyId: string;
+  amount: number; // thirds of a level, as for Supply.wear
 }
 
 export interface GardenSettings {
@@ -120,6 +146,8 @@ export interface GardenData {
   map: GardenMap;
   /** What's where inside each area: area id → its bed plan (v0.4). */
   bedPlans: Record<string, BedPlan>;
+  /** What's in the shed (v0.5). */
+  supplies: Supply[];
 }
 
 // ── Garden layout (v0.4) ─────────────────────────────────────────

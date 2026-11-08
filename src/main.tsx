@@ -15,6 +15,7 @@ import { PlanScreen } from "./screens/Plan";
 import { WeatherProvider } from "./weatherStore";
 import { DidSomethingForm, JobForm, JobsScreen } from "./screens/Jobs";
 import { BedPlanScreen, MapScreen } from "./screens/Layout";
+import { SuppliesScreen } from "./screens/Supplies";
 import { DiaryEntryScreen, DiaryForm, DiaryScreen } from "./screens/Diary";
 
 function Screen() {
@@ -32,6 +33,8 @@ function Screen() {
       return <WeatherScreen />;
     case "map":
       return <MapScreen />;
+    case "supplies":
+      return <SuppliesScreen />;
     case "bedPlan":
       return <BedPlanScreen key={r.areaId} areaId={r.areaId} />;
     case "plan":

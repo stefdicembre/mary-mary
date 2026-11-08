@@ -2,7 +2,7 @@
 
 The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
-_Last updated: 8 November 2026_
+_Last updated: 8 November 2026 (v0.5)_
 
 ## What Mary Mary is
 
@@ -40,6 +40,12 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
     - "What's where" bed plan per area, linked to plants and planned plants.
     - 44 tests pass. Clicked through on an iPhone-sized screen, including touch drag, resize and page scrolling.
 
+12. **v0.4 pushed** (confirmed 8 Nov).
+13. **8 Nov: version 0.5, supplies.** Built from the wireframe Supplies screen.
+    - What's in the shed, with levels, "Needed for" this week's jobs, and a shareable shopping list.
+    - Jobs use up supplies when ticked off (small jobs add up, big jobs drop a level), and Undo puts them back.
+    - 51 tests pass. Clicked through on an iPhone-sized screen.
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -60,5 +66,5 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Next steps
 
-1. Stef: commit and push v0.4.
-2. Then: supplies and the harvest log. Possible later: link a plant page to its square on the bed plan.
+1. Stef: commit and push v0.5.
+2. Then: the harvest log. Possible later: link a plant page to its square on the bed plan.

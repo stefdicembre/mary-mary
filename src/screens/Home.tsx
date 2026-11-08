@@ -11,12 +11,25 @@ import { JobRow, useJobs } from "./Jobs";
 import { completeJob, oneQuickJob } from "../lib/jobs";
 import { IconLeaf } from "../icons";
 import { useState } from "react";
+import { shortForJobs } from "../lib/supplies";
+import { IconBox } from "../icons";
 
 /** "The allotment" → "Allotment", to fit under the circle. */
 const shortName = (n: string) => {
   const s = n.replace(/^The /i, "");
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
+
+/** "Running low on fleece. You'll need it for: Wrap the banana's trunk." */
+function shortText(short: ReturnType<typeof shortForJobs>): string {
+  const names = short.map((x) => x.supply.name.toLowerCase());
+  const list = names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+  const allOut = short.every((x) => x.supply.level === "out");
+  const jobs = Array.from(new Set(short.flatMap((x) => x.jobs.map((j) => j.title))));
+  const it = names.length === 1 ? "it" : "them";
+  const head = allOut ? `Out of ${list}.` : `Running low on ${list}.`;
+  return jobs.length === 1 ? `${head} You'll need ${it} for: ${jobs[0]}.` : `${head} You'll need ${it} for ${jobs.length} jobs this week.`;
+}
 
 export function Home() {
   const { garden, saveError, update } = useStore();
@@ -27,6 +40,7 @@ export function Home() {
   const { forecast, status } = useWeather();
   const urgent = forecast ? adviceFor(forecast, garden, todayISO()).filter((a) => a.urgent) : [];
   const now = new Date();
+  const short = shortForJobs(garden, jobs.thisWeek);
   const struggling = garden.plants.filter((p) => p.status === "struggling");
   const areaName = (id: string) => garden.areas.find((a) => a.id === id)?.name ?? "";
   const latestSetback = (plantId: string) =>
@@ -135,6 +149,12 @@ export function Home() {
               <JobRow key={j.key} job={j} compact />
             ))}
           </div>
+        )}
+        {short.length > 0 && (
+          <a className="short-note" href={href({ page: "supplies" })}>
+            <IconBox />
+            <p>{shortText(short)}</p>
+          </a>
         )}
       </div>
 

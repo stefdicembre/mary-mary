@@ -4,6 +4,7 @@ import { shortDate, todayISO } from "../lib/dates";
 import { addDays, addTask, completeJob, deleteTask, jobLists, nextMonthJobs, snoozeJob, undoDone } from "../lib/jobs";
 import type { JobItem } from "../lib/jobs";
 import { adviceFor } from "../lib/weather";
+import { suppliesForJob } from "../lib/supplies";
 import { go, href } from "../router";
 import { useStore } from "../store";
 import { BackBar, Chips, Switch } from "../ui";
@@ -26,6 +27,26 @@ export function useJobs() {
   const today = todayISO();
   const advice = forecast ? adviceFor(forecast, garden, today) : [];
   return { today, ...jobLists(garden, today, advice) };
+}
+
+/** "Needs fleece, twine (running low)", from the job's list and what's in the shed. */
+function JobNeeds({ job }: { job: JobItem }) {
+  const { garden } = useStore();
+  const shed = suppliesForJob(garden, job).map((u) => garden.supplies.find((s) => s.id === u.supplyId)!).filter(Boolean);
+  const names = job.uses?.length ? job.uses.map((u) => u.what) : shed.map((s) => s.name.toLowerCase());
+  if (!names.length) return null;
+  const short = shed.filter((s) => s.level !== "plenty");
+  return (
+    <span className="job-needs">
+      Needs {names.join(", ")}
+      {short.map((s) => (
+        <span key={s.id} className="low">
+          {" "}
+          · {s.name} {s.level === "out" ? "used up" : "running low"}
+        </span>
+      ))}
+    </span>
+  );
 }
 
 export function JobRow({ job, compact }: { job: JobItem; compact?: boolean }) {
@@ -55,6 +76,7 @@ export function JobRow({ job, compact }: { job: JobItem; compact?: boolean }) {
           {job.minutes ? ` · ${job.minutes} min` : ""}
         </span>
         {!compact && job.why && <span className="job-why">{job.why}</span>}
+        {!compact && <JobNeeds job={job} />}
         {tag && <span className={`tag ${tag.c}`} style={{ alignSelf: "flex-start", marginTop: 2 }}>{tag.t}</span>}
       </div>
       {!compact && (

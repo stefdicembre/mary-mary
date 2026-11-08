@@ -4,7 +4,7 @@ import { updateSettings } from "../lib/actions";
 import { isGardenData, plantsToCSV } from "../lib/data";
 import { shortDate, todayISO } from "../lib/dates";
 import { setbackSummary } from "../lib/reasons";
-import { IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconMap, IconNext, SkyIcon } from "../icons";
+import { IconBag, IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconMap, IconNext, SkyIcon } from "../icons";
 import { exportPhotos, importPhotos } from "../lib/photos";
 import { photosInUse } from "../lib/actions";
 import { findPlace } from "../lib/weatherApi";
@@ -15,6 +15,7 @@ import { BackBar } from "../ui";
 export function Menu() {
   const { garden } = useStore();
   const lostCount = garden.plants.filter((p) => p.status === "lost").length;
+  const lowCount = garden.supplies.filter((s) => s.level !== "plenty").length;
   const item = (to: string, icon: ReactNode, title: string, sub: string) => (
     <a className="list-item" href={to} style={{ minHeight: 68 }}>
       <span style={{ flex: "none", width: 40, height: 40, borderRadius: "50%", background: "var(--green-pale)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -38,12 +39,13 @@ export function Menu() {
       <div className="list">
         {item(href({ page: "jobs" }), <IconCheck />, "Jobs", "This week's jobs, and what you've done")}
         {item(href({ page: "diary" }), <IconBook />, "Garden diary", "See how your garden has grown")}
+        {item(href({ page: "supplies" }), <IconBag />, "Supplies", lowCount ? `${lowCount} running low or used up` : "What's in the shed, and what your jobs need")}
         {item(href({ page: "map" }), <IconMap />, "Garden map", "Where everything is, and what's planted where")}
         {item(href({ page: "weather" }), <SkyIcon sky="partly" size={24} />, "Weather", "The week ahead, and what it means for the garden")}
         {item(href({ page: "lost" }), <IconLeaf size={22} />, "Didn't make it", lostCount ? `${lostCount} ${lostCount === 1 ? "plant" : "plants"} to learn from` : "Nothing lost so far")}
         {item(href({ page: "settings" }), <IconCog size={22} color="#3B6D11" />, "Settings and backup", "Your garden's name, and saving a copy")}
       </div>
-      <p className="hint">Coming next: supplies and the harvest log.</p>
+      <p className="hint">Coming next: the harvest log.</p>
     </>
   );
 }

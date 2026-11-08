@@ -188,3 +188,15 @@ export function SkyIcon({ sky, size = 30 }: { sky: "sun" | "partly" | "cloud" | 
       );
   }
 }
+export const IconBag = ({ size = 22, color = "#3B6D11" }: P) => (
+  <svg {...base(size, color, 1.6)}>
+    <path d="M6 8h12l-1 12H7z" />
+    <path d="M9 8a3 3 0 0 1 6 0" />
+  </svg>
+);
+export const IconBox = ({ size = 20, color = "#633806" }: P) => (
+  <svg {...base(size, color, 1.6)} style={{ flex: "none" }}>
+    <path d="M3 7l9-4 9 4v10l-9 4-9-4z" />
+    <path d="M3 7l9 4 9-4M12 11v10" />
+  </svg>
+);

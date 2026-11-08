@@ -6,7 +6,7 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 **Live app:** https://stefdicembre.github.io/mary-mary/
 
-## What it does so far (version 0.4)
+## What it does so far (version 0.5)
 
 - **Home:** a greeting, your garden areas, and any plants that need a look.
 - **Garden areas:** add, edit or remove areas, with which way they face, soil and notes.
@@ -23,7 +23,9 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 - **Garden map** (new in 0.4): from Home ("See the map") or the Menu. "Start my map" sets out your areas on a grid where each square is about a metre. Tap "Move things", then tap an area and drag it (or use the arrow buttons), drag its corner to resize, or "Turn round". Add the house, patio, paths, shed, trees and compost. Set the garden's size, and tap the compass to show which way north is. When you're not moving things, tap an area to open it. A dot shows where something is struggling.
 - **What's where** (new in 0.4): each area has a bed plan. Tap a plant under "Not placed yet", then tap a square. Tap a placed plant to open it, move it or take it off. Planned plants show dashed, and keep their square when you tap "Planted it". Plants that didn't make it stay faintly as "was here" until you clear them. The grid starts at two squares to a metre from the map, and you can change it.
 
-Coming next: supplies and the harvest log. Sharing with Cath comes later.
+- **Supplies** (new in 0.5): in the Menu. Add what's in the shed (tap an idea like Fleece or Bone meal, or type your own) and say whether you've got plenty or it's running low. Each item shows which of this week's jobs need it. When you tick off a job, Mary Mary uses up what it needs: small jobs use a bit (three of them drop it a level), big jobs like mulching drop it straight away. Tap "Change" to correct her, rename or remove. Undo on a job puts its supplies back. Jobs show "Needs fleece, twine", Home warns when something a job needs is running low, and "Share the list" sends your shopping list to Notes, Messages or wherever you like.
+
+Coming next: the harvest log. Sharing with Cath comes later.
 
 ## Putting a change live
 
@@ -37,6 +39,7 @@ Coming next: supplies and the harvest log. Sharing with Cath comes later.
 - React + TypeScript, bundled with esbuild (`build.mjs`). No other runtime libraries.
 - Weather: `src/lib/weatherApi.ts` (postcodes.io for UK postcodes, Open-Meteo for the forecast and town names; both free, no keys) and `src/lib/weather.ts` (advice rules). Overnight lows are worked out from hourly temperatures, 6pm to 9am.
 - Jobs: `src/lib/jobs.ts` (seasonal calendar plus own jobs; a seasonal job done counts for that season, keyed "<id>:<season year>").
+- Supplies: `src/lib/supplies.ts` (matching jobs to supplies by name, using up and putting back, tested in `supplies.test.ts`) and `src/screens/Supplies.tsx`. Seasonal jobs list what they use (`uses` in `SEASONAL`); your own jobs are matched by words in their title and "Anything you'll need?". Each supply counts `wear` in thirds of a level, and a done job records `supplyUse` so Undo is exact.
 - Diary photos: `src/lib/photos.ts`, kept in their own IndexedDB store. Unused photos are tidied when the app starts.
 - Layout: `src/lib/layout.ts` (map boxes and bed plan squares, tested in `layout.test.ts`) and `src/screens/Layout.tsx`. Bed plans are tidied after every change (`tidyBedPlans`) so they never point at deleted or moved plants.
 - Planner: `src/lib/catalogue.ts` (built-in UK plant list, general advice) and `src/lib/plan.ts` (filtering and scoring).

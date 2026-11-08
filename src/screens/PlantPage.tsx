@@ -76,7 +76,7 @@ export function PlantPage({ id }: { id: string }) {
               aria-pressed={plant.status === "growing" && !!plant.doesWell}
               onClick={() =>
                 update(
-                  (g) => (plant.status === "struggling" ? updatePlant(markRecovered(g, id), { doesWell: true }) : updatePlant(g, id, { doesWell: !plant.doesWell })),
+                  (g) => (plant.status === "struggling" ? updatePlant(markRecovered(g, id), id, { doesWell: true }) : updatePlant(g, id, { doesWell: !plant.doesWell })),
                   plant.doesWell ? undefined : "Marked as doing well here",
                 )
               }
