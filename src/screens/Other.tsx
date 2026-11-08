@@ -4,7 +4,7 @@ import { updateSettings } from "../lib/actions";
 import { isGardenData, plantsToCSV } from "../lib/data";
 import { shortDate, todayISO } from "../lib/dates";
 import { setbackSummary } from "../lib/reasons";
-import { IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconNext, SkyIcon } from "../icons";
+import { IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconMap, IconNext, SkyIcon } from "../icons";
 import { exportPhotos, importPhotos } from "../lib/photos";
 import { photosInUse } from "../lib/actions";
 import { findPlace } from "../lib/weatherApi";
@@ -38,6 +38,7 @@ export function Menu() {
       <div className="list">
         {item(href({ page: "jobs" }), <IconCheck />, "Jobs", "This week's jobs, and what you've done")}
         {item(href({ page: "diary" }), <IconBook />, "Garden diary", "See how your garden has grown")}
+        {item(href({ page: "map" }), <IconMap />, "Garden map", "Where everything is, and what's planted where")}
         {item(href({ page: "weather" }), <SkyIcon sky="partly" size={24} />, "Weather", "The week ahead, and what it means for the garden")}
         {item(href({ page: "lost" }), <IconLeaf size={22} />, "Didn't make it", lostCount ? `${lostCount} ${lostCount === 1 ? "plant" : "plants"} to learn from` : "Nothing lost so far")}
         {item(href({ page: "settings" }), <IconCog size={22} color="#3B6D11" />, "Settings and backup", "Your garden's name, and saving a copy")}

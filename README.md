@@ -6,7 +6,7 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 **Live app:** https://stefdicembre.github.io/mary-mary/
 
-## What it does so far (version 0.3)
+## What it does so far (version 0.4)
 
 - **Home:** a greeting, your garden areas, and any plants that need a look.
 - **Garden areas:** add, edit or remove areas, with which way they face, soil and notes.
@@ -19,6 +19,9 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 - **Jobs** (new in 0.3): a built-in UK seasonal calendar that only suggests jobs that fit your garden (e.g. "Lift and store the dahlias" only if you have dahlias), plus your own jobs. Tick them off, "Not now" puts a job off for a week, and you can "Add something I did". Home shows "This week's jobs" and "One thing at a time" (the shortest job), and an urgent frost warning becomes today's first job.
 - **Garden diary** (new in 0.3): notes and photos by date, filtered by area or plant, with search. Setbacks and finished jobs can go in it too. Photos are shrunk to 1600px before saving, and backups include them.
+
+- **Garden map** (new in 0.4): from Home ("See the map") or the Menu. "Start my map" sets out your areas on a grid where each square is about a metre. Tap "Move things", then tap an area and drag it (or use the arrow buttons), drag its corner to resize, or "Turn round". Add the house, patio, paths, shed, trees and compost. Set the garden's size, and tap the compass to show which way north is. When you're not moving things, tap an area to open it. A dot shows where something is struggling.
+- **What's where** (new in 0.4): each area has a bed plan. Tap a plant under "Not placed yet", then tap a square. Tap a placed plant to open it, move it or take it off. Planned plants show dashed, and keep their square when you tap "Planted it". Plants that didn't make it stay faintly as "was here" until you clear them. The grid starts at two squares to a metre from the map, and you can change it.
 
 Coming next: supplies and the harvest log. Sharing with Cath comes later.
 
@@ -35,6 +38,7 @@ Coming next: supplies and the harvest log. Sharing with Cath comes later.
 - Weather: `src/lib/weatherApi.ts` (postcodes.io for UK postcodes, Open-Meteo for the forecast and town names; both free, no keys) and `src/lib/weather.ts` (advice rules). Overnight lows are worked out from hourly temperatures, 6pm to 9am.
 - Jobs: `src/lib/jobs.ts` (seasonal calendar plus own jobs; a seasonal job done counts for that season, keyed "<id>:<season year>").
 - Diary photos: `src/lib/photos.ts`, kept in their own IndexedDB store. Unused photos are tidied when the app starts.
+- Layout: `src/lib/layout.ts` (map boxes and bed plan squares, tested in `layout.test.ts`) and `src/screens/Layout.tsx`. Bed plans are tidied after every change (`tidyBedPlans`) so they never point at deleted or moved plants.
 - Planner: `src/lib/catalogue.ts` (built-in UK plant list, general advice) and `src/lib/plan.ts` (filtering and scoring).
 - Data lives in IndexedDB (`src/lib/db.ts`) as one document (`GardenData` in `src/lib/types.ts`).
 - All changes to the data go through small pure functions in `src/lib/actions.ts`.

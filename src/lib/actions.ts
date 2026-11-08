@@ -4,6 +4,7 @@
 
 import { newId } from "./data";
 import { setbackSummary } from "./reasons";
+import { plannedBecamePlant } from "./layout";
 import type { Area, GardenData, GardenSettings, JournalEntry, Plant, ReasonKey, Setback, SetbackOutcome } from "./types";
 
 export function addArea(g: GardenData, a: Omit<Area, "id" | "createdAt">): [GardenData, string] {
@@ -146,14 +147,15 @@ export function plantPlanned(g: GardenData, id: string, today: string): GardenDa
   if (!p) return g;
   // "Tulip 'Ballerina'" → name "Tulip", variety "Ballerina"
   const m = p.name.match(/^(.*?)\s+'(.+)'$/);
-  const [next] = addPlant(removePlanned(g, id), {
+  const [next, plantId] = addPlant(removePlanned(g, id), {
     name: m ? m[1] : p.name,
     variety: m ? m[2] : undefined,
     areaId: p.areaId,
     section: p.section,
     plantedOn: today,
   });
-  return next;
+  // If it had a square on the bed plan, the new plant takes it.
+  return plannedBecamePlant(next, id, plantId);
 }
 
 export function notForMe(g: GardenData, areaId: string, catalogueId: string, undo = false): GardenData {

@@ -23,6 +23,8 @@ export type Route =
   | { page: "newPlant"; areaId: string }
   | { page: "plant"; id: string }
   | { page: "editPlant"; id: string }
+  | { page: "map" }
+  | { page: "bedPlan"; areaId: string }
   | { page: "setback"; id: string; outcome: "struggling" | "died" | "removed" };
 
 export function parse(hash: string): Route {
@@ -46,6 +48,8 @@ export function parse(hash: string): Route {
       return { page: "diary" };
     case "menu":
       return { page: "menu" };
+    case "map":
+      return { page: "map" };
     case "settings":
       return { page: "settings" };
     case "lost":
@@ -58,6 +62,7 @@ export function parse(hash: string): Route {
       if (b && c === "edit") return { page: "editArea", id: b };
       if (b && c === "new-plant") return { page: "newPlant", areaId: b };
       if (b && c === "plan") return { page: "plan", areaId: b };
+      if (b && c === "layout") return { page: "bedPlan", areaId: b };
       if (b) return { page: "area", id: b };
       break;
     case "plant":
@@ -102,6 +107,10 @@ export function href(r: Route): string {
       return `#/diary/entry/${encodeURIComponent(r.id)}/edit`;
     case "plan":
       return `#/area/${encodeURIComponent(r.areaId)}/plan`;
+    case "map":
+      return "#/map";
+    case "bedPlan":
+      return `#/area/${encodeURIComponent(r.areaId)}/layout`;
     case "newArea":
       return "#/new-area";
     case "area":

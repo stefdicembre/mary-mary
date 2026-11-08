@@ -78,5 +78,9 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
   - **Jobs:** seasonal UK calendar (`SEASONAL` in jobs.ts, about 45 jobs) matched to plants and areas, plus own jobs, Not now (7 days), Add something I did, Done recently with Undo and "+ Diary". Home has "This week's jobs" and "One thing at a time".
   - **Garden diary:** list by month, area chips, search, entry view, add/edit/remove, and photos (shrunk, own IndexedDB store, included in backups). Links from area, plant and jobs.
   - Still out of scope: the "who's doing it" Stef/Cath split, which waits for sharing.
+- **v0.4 (8 Nov 2026):**
+  - **Garden map** (`#/map`): areas and features (house, patio, path, shed, tree, compost) as boxes on a 1 m grid. Edit mode: tap to select, drag to move, corner handle to resize, arrow and size buttons, Turn round, garden size, north compass. View mode: tap an area to open it. Smaller shapes draw on top.
+  - **Bed plans** (`#/area/<id>/layout`, "What's where"): a grid per area (default two squares per metre from the map, or 6 × 4). Place plants and planned plants, move/swap, take off. Planned → planted keeps the square. Lost plants stay faintly as "was here".
+  - Data: `GardenData.map` and `GardenData.bedPlans`, filled in by `upgrade()` for older backups. Logic in `src/lib/layout.ts`; `tidyBedPlans` runs after every change.
 - **Next:** supplies (wireframe Supplies screen) and the harvest log.
 - The repo is public, which is needed for free GitHub Pages. Stef places `.github/workflows` files by hand, because remote tools can't write there.

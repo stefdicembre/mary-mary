@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { emptyGarden, upgrade } from "./lib/data";
 import { askToKeepData, loadGarden, saveGarden } from "./lib/db";
 import { photosInUse } from "./lib/actions";
+import { tidyBedPlans } from "./lib/layout";
 import { tidyPhotos } from "./lib/photos";
 import type { GardenData } from "./lib/types";
 
@@ -70,7 +71,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (fn: (g: GardenData) => GardenData, toastText?: string, undoable = false) => {
       const prev = latest.current;
       if (!prev) return;
-      const next = fn(prev);
+      // Bed plans forget plants that were deleted, moved or taken off the plan.
+      const next = tidyBedPlans(fn(prev));
       latest.current = next;
       setGarden(next);
       if (toastText) showToast({ text: toastText, undo: undoable ? prev : undefined });

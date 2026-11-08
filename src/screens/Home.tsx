@@ -161,7 +161,12 @@ export function Home() {
       )}
 
       <div className="stack">
-        <p className="label">Our garden</p>
+        <div className="row">
+          <p className="label">Our garden</p>
+          <a href={href({ page: "map" })} className="text-btn" style={{ textDecoration: "none", minHeight: 32, display: "flex", alignItems: "center" }}>
+            See the map
+          </a>
+        </div>
         <div className="areas">
           {garden.areas.map((a) => {
             const flagged = garden.plants.some((p) => p.areaId === a.id && p.status === "struggling");

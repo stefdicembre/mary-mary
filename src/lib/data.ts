@@ -1,6 +1,7 @@
 // Creating, checking and exporting the garden data.
 
 import type { Area, AreaKind, ColourScheme, GardenData } from "./types";
+import { defaultMap, tidyBedPlans } from "./layout";
 
 export function newId(prefix: string): string {
   const rand = Math.random().toString(36).slice(2, 8);
@@ -61,6 +62,8 @@ export function emptyGarden(withStarterAreas: boolean): GardenData {
     notForMe: [],
     tasks: [],
     snoozed: {},
+    map: defaultMap(),
+    bedPlans: {},
   });
 }
 
@@ -70,7 +73,18 @@ export function upgrade(g: GardenData): GardenData {
   const areas = g.areas.map((a) =>
     a.colours ? a : /sunset/i.test(a.name) ? { ...a, colours: "hot" as const } : /pastel/i.test(a.name) ? { ...a, colours: "pastel" as const } : a,
   );
-  return { ...g, areas, planned: g.planned ?? [], notForMe: g.notForMe ?? [], tasks: g.tasks ?? [], snoozed: g.snoozed ?? {} };
+  const map = g.map ?? defaultMap();
+  const filled = {
+    ...g,
+    areas,
+    planned: g.planned ?? [],
+    notForMe: g.notForMe ?? [],
+    tasks: g.tasks ?? [],
+    snoozed: g.snoozed ?? {},
+    map: { ...defaultMap(), ...map, areas: map.areas ?? {}, features: map.features ?? [] },
+    bedPlans: g.bedPlans ?? {},
+  };
+  return tidyBedPlans(filled);
 }
 
 export const COLOUR_SCHEMES: Array<{ value: ColourScheme; label: string; colours: string[] }> = [

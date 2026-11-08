@@ -2,7 +2,7 @@
 
 The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
-_Last updated: 28 October 2026_
+_Last updated: 8 November 2026_
 
 ## What Mary Mary is
 
@@ -34,6 +34,12 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
    - Seasonal UK job calendar matched to the garden, plus own jobs. The diary has photos, filters and search.
    - 33 tests pass, plus an end-to-end click-through including a full-size photo.
 
+10. **v0.3 pushed** and on the iPhone (confirmed 8 Nov).
+11. **8 Nov: version 0.4, garden layout plan.** Stef chose "map, then bed plans" over pins on a photo.
+    - Whole-garden map with draggable, resizable areas and features, garden size and north.
+    - "What's where" bed plan per area, linked to plants and planned plants.
+    - 44 tests pass. Clicked through on an iPhone-sized screen, including touch drag, resize and page scrolling.
+
 ## Decisions made
 
 - **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
@@ -54,5 +60,5 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Next steps
 
-1. Stef: commit and push v0.3.
-2. Then: supplies and the harvest log.
+1. Stef: commit and push v0.4.
+2. Then: supplies and the harvest log. Possible later: link a plant page to its square on the bed plan.

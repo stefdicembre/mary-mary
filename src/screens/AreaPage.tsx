@@ -151,9 +151,14 @@ export function AreaPage({ id }: { id: string }) {
         </div>
       )}
 
-      <a className="btn outline full" href={href({ page: "plan", areaId: id })}>
-        Suggest a planting plan
-      </a>
+      <div className="btn-row">
+        <a className="btn outline" style={{ flex: 1 }} href={href({ page: "bedPlan", areaId: id })}>
+          What's where
+        </a>
+        <a className="btn outline" style={{ flex: 1 }} href={href({ page: "plan", areaId: id })}>
+          Suggest plants
+        </a>
+      </div>
 
       {setbacksHere.length > 0 && (
         <div className="panel-amber">

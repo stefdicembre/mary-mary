@@ -116,4 +116,55 @@ export interface GardenData {
   tasks: Task[];
   /** Jobs put off with "Not now": job key → YYYY-MM-DD to show again from. */
   snoozed: Record<string, string>;
+  /** The whole-garden map (v0.4). */
+  map: GardenMap;
+  /** What's where inside each area: area id → its bed plan (v0.4). */
+  bedPlans: Record<string, BedPlan>;
+}
+
+// ── Garden layout (v0.4) ─────────────────────────────────────────
+
+/** A rectangle on a grid. On the garden map one square is about a metre. */
+export interface Box {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export type FeatureKind = "house" | "shed" | "patio" | "path" | "tree" | "compost" | "other";
+
+/** Something on the map that isn't a planted area: the house, a shed, a path. */
+export interface MapFeature extends Box {
+  id: string;
+  kind: FeatureKind;
+  label: string;
+}
+
+export type North = "up" | "right" | "down" | "left";
+
+export interface GardenMap {
+  /** Size of the garden in squares (about a metre each). */
+  width: number;
+  length: number;
+  /** Which way north is on the map. */
+  north: North;
+  /** Where each area sits: area id → box. Areas not in here aren't on the map yet. */
+  areas: Record<string, Box>;
+  features: MapFeature[];
+}
+
+/** One plant (or planned plant) placed in a square of a bed plan. */
+export interface BedSpot {
+  id: string;
+  x: number;
+  y: number;
+  plantId?: string;
+  plannedId?: string;
+}
+
+export interface BedPlan {
+  cols: number;
+  rows: number;
+  spots: BedSpot[];
 }
