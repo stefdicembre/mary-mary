@@ -3,14 +3,16 @@
 //  - a brand new phone (the garden has needsSetup), or "Start afresh" in Settings:
 //    finishing replaces the garden with what was set up;
 //  - "Try first-time setup" in Settings: a walk-through only, nothing is saved.
-// Parts that need things Mary Mary doesn't have yet (invites, photo recognition,
-// everyday nudges) are shown greyed out as "Coming soon", as Stef asked.
+// Parts that need things Mary Mary doesn't have yet (photo recognition, everyday
+// nudges) are shown greyed out as "Coming soon", as Stef asked. Joining a garden
+// and invites work once sharing is switched on (v1.1, cloudConfig.ts).
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { CATALOGUE } from "../lib/catalogue";
 import { todayISO } from "../lib/dates";
 import { AREA_KINDS } from "../lib/data";
+import { cloudReady } from "../lib/cloudConfig";
 import { loadExtra, saveExtra } from "../lib/db";
 import {
   AREA_IDEAS,
@@ -22,6 +24,7 @@ import {
   blankAnswers,
   doneTitle,
   gardenFromSetup,
+  namesList,
   starterIdeas,
 } from "../lib/setup";
 import type { Room, SetupAnswers } from "../lib/setup";
@@ -30,6 +33,7 @@ import type { Aspect, AreaKind, Gardener } from "../lib/types";
 import { findPlace } from "../lib/weatherApi";
 import { go, href } from "../router";
 import { useStore } from "../store";
+import { useSharing } from "../sharing";
 import { IconBack, IconClose, IconLeaf, IconPlus } from "../icons";
 
 type Starter = "" | "aspect" | "room" | "soil" | "matters" | "result";
@@ -75,6 +79,7 @@ function Toggle<T extends string>({ value, on, label, full, onPick }: { value: T
 export function SetupScreen({ trial }: { trial: boolean }) {
   const { garden, replaceAll } = useStore();
   const fresh = !!garden.settings.needsSetup;
+  const shared = !!useSharing().link;
   const [step, setStep] = useState(0);
   const [areaIdx, setAreaIdx] = useState(0);
   const [ans, setAns] = useState<SetupAnswers>(blankAnswers);
@@ -303,6 +308,7 @@ export function SetupScreen({ trial }: { trial: boolean }) {
               <div className="panel-amber" role="note">
                 <p>
                   <strong>Starting afresh.</strong> When you finish, what you set up here replaces everything on this phone. Save a backup in Settings first if you might want it back.
+                  {shared && " This garden is shared, so it will start afresh for everyone in it too."}
                 </p>
               </div>
             )}
@@ -383,7 +389,12 @@ export function SetupScreen({ trial }: { trial: boolean }) {
                     ))}
                   </div>
                 </div>
-                {i > 0 && (
+                {i > 0 && cloudReady() && (
+                  <p className="hint">
+                    {p.name.trim() || "They"} can have Mary Mary on their own phone too. When you've finished, you'll be able to send {p.name.trim() ? "them" : "an"} invite.
+                  </p>
+                )}
+                {i > 0 && !cloudReady() && (
                   <Soon>
                     <p className="label">Invite them to join on their own phone</p>
                     <input className="input" disabled aria-label="Their mobile number or email" placeholder="Their mobile number or email" />
@@ -817,11 +828,17 @@ export function SetupScreen({ trial }: { trial: boolean }) {
         )}
         {step === 0 && (
           <>
-            <Soon>
-              <button type="button" className="btn quiet full" disabled>
+            {cloudReady() && !trial ? (
+              <a className="btn outline full" href={href({ page: "join" })}>
                 Been invited? Join a garden
-              </button>
-            </Soon>
+              </a>
+            ) : (
+              <Soon>
+                <button type="button" className="btn quiet full" disabled>
+                  Been invited? Join a garden
+                </button>
+              </Soon>
+            )}
             {fresh && !trial && (
               <a className="btn quiet full" href={href({ page: "settings" })}>
                 Moving from another phone? Restore a backup
@@ -838,6 +855,11 @@ export function SetupScreen({ trial }: { trial: boolean }) {
           <button type="button" className="btn full" onClick={() => go({ page: "home" })}>
             Go to your garden
           </button>
+        )}
+        {step === LAST && !trial && cloudReady() && ans.people.slice(1).some((p) => p.name.trim()) && (
+          <a className="btn outline full" href={href({ page: "sharing" })}>
+            Invite {namesList(ans.people.slice(1).map((p) => p.name.trim()).filter(Boolean))} to join
+          </a>
         )}
         {step === LAST && trial && (
           <>

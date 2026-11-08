@@ -18,14 +18,17 @@ import { BedPlanScreen, MapScreen } from "./screens/Layout";
 import { SuppliesScreen } from "./screens/Supplies";
 import { HarvestForm, HarvestScreen } from "./screens/Harvest";
 import { SetupScreen } from "./screens/Setup";
+import { JoinScreen, JoinedScreen, SharingScreen } from "./screens/Sharing";
+import { SharingProvider } from "./sharing";
 import { useStore } from "./store";
 import { DiaryEntryScreen, DiaryForm, DiaryScreen } from "./screens/Diary";
 
 function Screen() {
   const r = useRoute();
   const { garden } = useStore();
-  // A brand new phone starts with first-time setup (Settings stays open, for restoring a backup).
-  if (garden.settings.needsSetup && r.page !== "settings" && !(r.page === "setup" && r.trial)) return <SetupScreen key="real" trial={false} />;
+  // A brand new phone starts with first-time setup (Settings stays open, for restoring a backup,
+  // and so does Join a garden, for someone who's been invited).
+  if (garden.settings.needsSetup && r.page !== "settings" && r.page !== "join" && !(r.page === "setup" && r.trial)) return <SetupScreen key="real" trial={false} />;
   switch (r.page) {
     case "home":
       return <Home />;
@@ -43,6 +46,12 @@ function Screen() {
       return <SetupScreen key={r.trial ? "try" : "real"} trial={!!r.trial} />;
     case "supplies":
       return <SuppliesScreen />;
+    case "sharing":
+      return <SharingScreen />;
+    case "join":
+      return <JoinScreen />;
+    case "joined":
+      return <JoinedScreen />;
     case "harvest":
       return <HarvestScreen key={r.year ?? "now"} year={r.year} />;
     case "harvestNew":
@@ -87,12 +96,14 @@ function Screen() {
 function App() {
   return (
     <StoreProvider>
-      <WeatherProvider>
-        <main className="app">
-          <Screen />
-        </main>
-        <ToastBar />
-      </WeatherProvider>
+      <SharingProvider>
+        <WeatherProvider>
+          <main className="app">
+            <Screen />
+          </main>
+          <ToastBar />
+        </WeatherProvider>
+      </SharingProvider>
     </StoreProvider>
   );
 }

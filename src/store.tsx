@@ -8,6 +8,7 @@ import { askToKeepData, loadGarden, saveGarden } from "./lib/db";
 import { photosInUse } from "./lib/actions";
 import { tidyBedPlans } from "./lib/layout";
 import { tidyPhotos } from "./lib/photos";
+import { bringIn } from "./lib/sync";
 import type { GardenData } from "./lib/types";
 
 interface Toast {
@@ -20,6 +21,11 @@ interface Store {
   /** Apply a change. Pass undoable text to show a toast with an Undo button. */
   update: (fn: (g: GardenData) => GardenData, toastText?: string, undoable?: boolean) => void;
   replaceAll: (g: GardenData) => void;
+  /**
+   * Changes that came in from the shared garden online (v1.1). Keeps anything changed
+   * on this phone meanwhile, and is saved before it returns.
+   */
+  fromCloud: (shared: GardenData, from: GardenData, by?: string) => Promise<GardenData>;
   toast: Toast | null;
   undo: () => void;
   dismissToast: () => void;
@@ -81,12 +87,30 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [showToast],
   );
 
+  const fromCloud = useCallback(
+    async (shared: GardenData, from: GardenData, by?: string) => {
+      const prev = latest.current!;
+      const next = tidyBedPlans(upgrade(bringIn(prev, shared, from)));
+      latest.current = next;
+      setGarden(next);
+      await saveGarden(next).catch(() => undefined);
+      if (by) showToast({ text: `${by}'s changes are in` });
+      return next;
+    },
+    [showToast],
+  );
+
   if (!garden) return null;
 
   const store: Store = {
     garden,
     update,
-    replaceAll: (g) => setGarden(upgrade(g)),
+    replaceAll: (g) => {
+      const next = upgrade(g);
+      latest.current = next;
+      setGarden(next);
+    },
+    fromCloud,
     toast,
     undo: () => {
       if (toast?.undo) setGarden(toast.undo);

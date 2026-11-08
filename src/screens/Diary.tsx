@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { addEntry, diaryEntries, removeEntry, updateEntry } from "../lib/actions";
 import { shortDate, todayISO } from "../lib/dates";
-import { photoUrl, savePhoto } from "../lib/photos";
+import { PHOTOS_ARRIVED, photoUrl, savePhoto } from "../lib/photos";
 import type { JournalEntry } from "../lib/types";
 import { IconPlus } from "../icons";
 import { go, href } from "../router";
@@ -13,15 +13,27 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 export function Photo({ id, size, full }: { id: string; size?: number; full?: boolean }) {
   const [url, setUrl] = useState<string>();
   const [gone, setGone] = useState(false);
+  const [tries, setTries] = useState(0);
   useEffect(() => {
     let live = true;
-    photoUrl(id).then((u) => live && (u ? setUrl(u) : setGone(true)));
+    photoUrl(id).then((u) => {
+      if (!live) return;
+      setUrl(u);
+      setGone(!u);
+    });
     return () => {
       live = false;
     };
-  }, [id]);
+  }, [id, tries]);
+  // A photo that isn't here yet may arrive from the shared garden (v1.1).
+  useEffect(() => {
+    if (!gone) return;
+    const again = () => setTries((n) => n + 1);
+    window.addEventListener(PHOTOS_ARRIVED, again);
+    return () => window.removeEventListener(PHOTOS_ARRIVED, again);
+  }, [gone]);
   const style = full ? { width: "100%", borderRadius: 16, display: "block" } : { width: size ?? 72, height: size ?? 72, borderRadius: 12, objectFit: "cover" as const, display: "block" };
-  if (gone) return <span className="photo-missing" style={full ? { height: 120 } : { width: size ?? 72, height: size ?? 72 }}>Photo not on this phone</span>;
+  if (gone) return <span className="photo-missing" style={full ? { height: 120 } : { width: size ?? 72, height: size ?? 72 }}>{tries ? "Photo not here yet" : "Photo not on this phone"}</span>;
   return url ? <img src={url} alt="" style={style} /> : <span className="photo-missing" style={full ? { height: 200 } : { width: size ?? 72, height: size ?? 72 }} />;
 }
 

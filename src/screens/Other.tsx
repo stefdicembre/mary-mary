@@ -5,7 +5,7 @@ import { isGardenData, plantsToCSV } from "../lib/data";
 import { harvestsIn, harvestsToCSV } from "../lib/harvest";
 import { shortDate, todayISO } from "../lib/dates";
 import { setbackSummary } from "../lib/reasons";
-import { IconBag, IconBasket, IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconMap, IconNext, SkyIcon } from "../icons";
+import { IconBag, IconBasket, IconBook, IconCheck, IconClose, IconCog, IconDownload, IconLeaf, IconMap, IconNext, IconPeople, SkyIcon } from "../icons";
 import { exportPhotos, importPhotos } from "../lib/photos";
 import { photosInUse } from "../lib/actions";
 import { findPlace } from "../lib/weatherApi";
@@ -14,6 +14,8 @@ import { href } from "../router";
 import { useStore } from "../store";
 import { BackBar } from "../ui";
 import { NotifySettings } from "./Notify";
+import { SyncLine } from "./Sharing";
+import { useSharing } from "../sharing";
 
 export function Menu() {
   const { garden } = useStore();
@@ -48,6 +50,7 @@ export function Menu() {
         {item(href({ page: "map" }), <IconMap />, "Garden map", "Where everything is, and what's planted where")}
         {item(href({ page: "weather" }), <SkyIcon sky="partly" size={24} />, "Weather", "The week ahead, and what it means for the garden")}
         {item(href({ page: "lost" }), <IconLeaf size={22} />, "Didn't make it", lostCount ? `${lostCount} ${lostCount === 1 ? "plant" : "plants"} to learn from` : "Nothing lost so far")}
+        {item(href({ page: "sharing" }), <IconPeople />, "Sharing", "Invite someone to garden with you")}
         {item(href({ page: "settings" }), <IconCog size={22} color="#3B6D11" />, "Settings and backup", "Your garden's name, and saving a copy")}
       </div>
     </>
@@ -117,6 +120,7 @@ async function saveFile(name: string, type: string, text: string): Promise<void>
 
 export function Settings() {
   const { garden, update, replaceAll } = useStore();
+  const sharing = useSharing();
   const [gardenName, setGardenName] = useState(garden.settings.gardenName);
   const [yourName, setYourName] = useState(garden.settings.yourName);
   const [postcode, setPostcode] = useState(garden.settings.postcode ?? "");
@@ -181,6 +185,8 @@ export function Settings() {
               }
               setSaving(false);
             }
+            const newName = yourName.trim() || garden.settings.yourName;
+            if (sharing.link && newName !== garden.settings.yourName) sharing.rename(newName).catch(() => undefined);
             update(
               (g) =>
                 updateSettings(g, {
@@ -197,6 +203,8 @@ export function Settings() {
         </button>
       </div>
 
+      <SharingSettings />
+
       <FrostSettings />
 
       <NotifySettings />
@@ -204,7 +212,7 @@ export function Settings() {
       <div className="stack" style={{ marginTop: 10 }}>
         <h2>Backup</h2>
         <p className="body">
-          Everything is kept on this phone ({counts}). Save a backup now and then, to Files or iCloud Drive, in case the phone is lost or the app is removed.
+          {sharing.link ? `Everything is kept on this phone, and shared online (${counts}).` : `Everything is kept on this phone (${counts}).`} Save a backup now and then, to Files or iCloud Drive, in case the phone is lost or the app is removed.
         </p>
         <button
           type="button"
@@ -303,6 +311,27 @@ export function Settings() {
 }
 
 declare const __APP_VERSION__: string;
+
+/** Settings → Sharing: a short summary, and the way in to invites (v1.1). */
+function SharingSettings() {
+  const { link, ready } = useSharing();
+  return (
+    <div className="stack" style={{ marginTop: 10 }}>
+      <h2>Sharing</h2>
+      {link ? (
+        <>
+          <SyncLine />
+          <p className="body">This garden is shared. Invite someone else, see who's in, or leave.</p>
+        </>
+      ) : (
+        <p className="body">Garden with someone? Share this garden so you can both use Mary Mary on your own phones{ready ? "" : " (not switched on yet)"}.</p>
+      )}
+      <a className="btn outline" href={href({ page: "sharing" })}>
+        {link ? "Sharing and invites" : "Share this garden or join one"}
+      </a>
+    </div>
+  );
+}
 
 /** Settings → First-time setup: try it out, or start the garden afresh (v1.0). */
 function SetupSettings({ onBackup }: { onBackup: () => Promise<void> }) {

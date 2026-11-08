@@ -2,7 +2,7 @@
 
 The main brief is `CLAUDE.md`, in this same folder. This file records how the project got here and what has been decided.
 
-_Last updated: 8 November 2026 (v1.0)_
+_Last updated: 8 November 2026 (v1.1)_
 
 ## What Mary Mary is
 
@@ -79,9 +79,17 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
     - Start afresh offers a backup first and only replaces the garden at Finish. A half-done setup picks up where it left off.
     - 85 tests pass. Clicked through on an iPhone-sized screen: a new phone end to end, a try-out (garden unchanged), and Start afresh.
 
+23. **8 Nov: version 1.1, sharing a garden and invites.** Stef chose Supabase (free online database), invite code only (no email sign-in), and everyone who joins can do everything.
+    - Settings → Sharing → "Share this garden" puts it online. "Make an invite code" gives a code like ROSE-482193 (works once, for a week) and "Send the invite" sends it with instructions. On a new phone, "Been invited? Join a garden" and the code.
+    - Both phones keep their own copy and catch up with each other (on opening, every 30 seconds, and just after a change). Changes made on both are merged; only the very same thing changed on both goes to the later one. Diary photos are shared too. Your own name stays on your phone.
+    - Who's in, removing people (the person who started it), waiting invites, Leave / Stop sharing (everyone keeps their copy).
+    - The database rules were tested on a real Postgres; the app was tested with two pretend phones and a pretend Supabase (104 tests, 26-step click-through).
+    - Waiting on Stef to create the Supabase project (steps in the README) and pass on the Project URL and publishable key.
+
 ## Decisions made
 
-- **Audience:** Stef first, on one phone. Sharing with Cath (online database and invites) comes later and needs asking about first.
+- **Audience:** Stef first, on one phone. Sharing with Cath added in v1.1 (8 Nov).
+- **Sharing (8 Nov):** Supabase free tier, used through its plain web addresses (no extra packages). Phones sign in anonymously; an invite code (single use, 7 days) lets a phone into a garden. Everyone in a garden can change everything; the owner can remove people. The whole garden is one document with a version number; clashes are merged on the phone.
 - **Weather:** Open-Meteo (free, no key).
 - **Smarts:** a built-in UK advice table first. No AI service yet.
 - **Tech:**
@@ -96,10 +104,11 @@ Mary Mary is a personal gardening app and companion for Stef (UK), who gardens w
 
 ## Open questions
 
-- When to start sharing with Cath, and which online database to use (Supabase or Firebase free tier are candidates).
+- Sharing: settled in v1.1 (Supabase). Next could be "who's doing it" on jobs.
 - Photos: settled in v0.3. They're shrunk and kept in their own IndexedDB store, and included in backups.
 
 ## Next steps
 
-1. Stef: Commit and Push v1.0 in GitHub Desktop. Set up alerts in Settings → Notifications if not done yet.
-2. Other gaps from the wireframe check to choose from: the full "Out in the garden" mode, heavy rain as an urgent warning, Welcome back.
+1. Stef: Commit and Push v1.1 in GitHub Desktop.
+2. Stef: set up Supabase (README → "Sharing a garden: setting it up") and give Claude the Project URL and publishable key. Claude puts them in `src/lib/cloudConfig.ts`; then try it with Cath's phone.
+3. Then: "who's doing it" on jobs, or the wireframe gaps (the full "Out in the garden" mode, heavy rain as an urgent warning, Welcome back).

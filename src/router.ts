@@ -26,6 +26,9 @@ export type Route =
   | { page: "map" }
   | { page: "setup"; trial?: boolean }
   | { page: "supplies" }
+  | { page: "sharing" }
+  | { page: "join" }
+  | { page: "joined" }
   | { page: "harvest"; year?: number }
   | { page: "harvestNew"; plantId?: string; taskId?: string }
   | { page: "harvestEdit"; id: string }
@@ -59,6 +62,10 @@ export function parse(hash: string): Route {
       return b === "try" ? { page: "setup", trial: true } : { page: "setup" };
     case "supplies":
       return { page: "supplies" };
+    case "sharing":
+      return { page: "sharing" };
+    case "join":
+      return b === "done" ? { page: "joined" } : { page: "join" };
     case "harvest":
       if (b === "new") {
         if (c === "plant" && d) return { page: "harvestNew", plantId: d };
@@ -131,6 +138,12 @@ export function href(r: Route): string {
       return r.trial ? "#/setup/try" : "#/setup";
     case "supplies":
       return "#/supplies";
+    case "sharing":
+      return "#/sharing";
+    case "join":
+      return "#/join";
+    case "joined":
+      return "#/join/done";
     case "harvest":
       return r.year ? `#/harvest/year/${r.year}` : "#/harvest";
     case "harvestNew":

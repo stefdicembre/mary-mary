@@ -6,7 +6,7 @@ Mary Mary is a personal gardening app and companion for Stef. It helps keep on t
 
 ## Who it's for
 
-- A home gardener (Stef), based in the **UK (Europe/London)**. Stef gardens with Cath. Sharing with Cath on her own phone is planned for later.
+- A home gardener (Stef), based in the **UK (Europe/London)**. Stef gardens with Cath. Since v1.1 a garden can be shared, so Cath can use it on her own phone.
 - Use UK conventions: metric units (cm, m, °C), UK spellings, UK seasons and frost dates, and UK plant names alongside the Latin ones.
 - It should feel friendly and calm, like a helpful gardening friend rather than a farm-management tool.
 
@@ -29,7 +29,7 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
 7. **Supplies**: what's in the shed and what's running low.
 8. **Harvest log** and **garden layout plan**. (**Going away** mode is parked: Stef doesn't want it for now.)
 9. **Urgent alerts** on the lock screen (v0.9: frost, storms, heatwaves only).
-10. *Later:* sharing with Cath (online database and invites), an everyday nudge, smarter suggestions.
+10. **Sharing with Cath** (v1.1: Supabase, invite codes). *Later:* who's doing which job, an everyday nudge, smarter suggestions.
 
 ## Plants that don't make it (setbacks)
 
@@ -48,7 +48,7 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
 
 ## Decisions (28 Oct 2026)
 
-- **Just Stef's phone first.** No backend yet. Sharing with Cath is a later phase that needs an online database and sign-in, so ask before starting it.
+- **Just Stef's phone first.** No backend at first. (8 Nov, v1.1: Stef chose Supabase for sharing, see below.)
 - **Weather:** use Open-Meteo (free, no account). The postcode is only used for the forecast.
 - **Smarts:** a built-in UK table of seasonal jobs and plant advice first. No AI service yet: that would need an API key and a running cost, so ask first.
 - **Tech:**
@@ -114,8 +114,19 @@ The wireframes are in the claude.ai Design canvas "Mary Mary: home screen" (http
   - A new phone gets `newInstall()` (`settings.needsSetup`, no areas) instead of Stef's eight areas; `main.tsx` shows setup for any address except Settings (restore a backup). Finishing replaces the garden (`gardenFromSetup` in `lib/setup.ts`). The draft is kept in the `setup-draft` IndexedDB extra.
   - Settings → First-time setup: "Try first-time setup" (`#/setup/try`, saves nothing) and "Start afresh…" (Save a backup first, then `#/setup`; nothing changes until Finish).
   - New settings: `gardeners`, `likes` (pre-tick the planting plan's priorities via `prioritiesFrom`), `setUpOn`. 85 tests in all (`setup.test.ts`).
+- **v1.1 (8 Nov 2026): sharing a garden and invites.** Stef chose **Supabase** (free), **invite code only** (no email sign-in) and **everyone who joins can do everything**.
+  - Each phone signs in to Supabase as an anonymous user (no email/password; needs "Allow anonymous sign-ins" on). The invite code (`WORD-123456`, word from `CODE_WORDS`, single use, 7 days) is what adds a phone to a garden. Wrong codes are counted in `join_tries` (10 per hour per phone, 60 per 10 minutes overall).
+  - `supabase/setup.sql`: `gardens` (whole `GardenData` as one `jsonb` + `version`, bumped by a trigger), `members` (owner/gardener), `invites`, `photos` (data URLs), RLS so a phone only sees gardens it's in, and functions `create_garden`, `make_invite`, `join_garden`, `leave_garden` (last one out deletes the garden), `remove_member` (owner only; if the owner has gone, the longest-standing member). Tested on a real Postgres 16 in Claude's workspace with a stand-in `auth` schema (Stef, Cath and a stranger).
+  - `src/lib/cloudConfig.ts` holds the project URL and publishable key. **Empty = sharing off** (screens say "not switched on yet", setup keeps Join as Coming soon). The values are safe in the public repo.
+  - `src/lib/cloud.ts`: REST + auth with `fetch` (no supabase-js; the workspace can't install it). `src/lib/share.ts`: `shareable`/`withLocal` (`yourName` and `needsSetup` stay on the phone), `same` (ignores key order), `merge3` (three-way: lists by `id`, objects by key, lists of words as adds/removes; same field changed on both → the phone sending wins; removed on one + changed on the other → kept). `src/lib/sync.ts`: `Syncer` rounds (cheap version check → take newer, or PATCH `version=eq.N` → on clash fetch, merge, retry), then photos up/down; `bringIn` keeps edits made during a round.
+  - `src/sharing.tsx` (`SharingProvider`, link kept in the `cloud` IndexedDB extra, never in backups): syncs on open, visibility, `online`, every 30 s, and 1.2 s after a change. Toast "Cath's changes are in". Store has `fromCloud`.
+  - Screens (`screens/Sharing.tsx`): `#/sharing` (share this garden, sync status + Check now, who's in + Remove, invite code + Send the invite (share sheet / copy) with instructions, waiting invites with Send again/Cancel, Leave / Stop sharing, "not in this garden any more" notice), `#/join` (code + name, warns it replaces a garden already on the phone), `#/join/done` (welcome). Settings has a Sharing section, the Menu has Sharing, setup's "Been invited? Join a garden" works, the invite hint on other gardeners and "Invite … to join" on the Done screen. Start afresh warns it changes the shared garden for everyone. Diary photos missing on a phone show again when they arrive (`PHOTOS_ARRIVED`).
+  - `.github/workflows/keep-awake.yml` visits the database every 3 days (Supabase pauses free projects after a week).
+  - 104 tests (`share.test.ts`: merging, codes, and two phones against `cloud.fake.ts`, a pretend Supabase). Click-through with two phones (26 checks): share, invite, join on a fresh phone, diary notes both ways, simultaneous edits both kept, photo arrives, names stay local, remove, offline then catch up, stop sharing.
+  - **Waiting on Stef:** create the Supabase project (README "Sharing a garden: setting it up"), then give Claude the Project URL and publishable key for `cloudConfig.ts`. Not yet tried against the real Supabase.
+  - Not done yet: "who's doing it" (Stef/Cath) on jobs, Cath alerts, live updates while both are on the same screen (it catches up within 30 s).
 - **Wireframe check (8 Nov):** 23 of 31 screens built. Partly built: Urgent warnings (heavy rain isn't urgent yet) and Out in the garden (only the Home card). Notifications: urgent part built in v0.9 (everyday nudge and Cath alerts not yet). First-time setup built in v1.0. Not built: Welcome back, Going away and Cath's view (parked).
-- **Next:** Stef pushes v1.0 (and sets up the alerts secret if not done). Remaining wireframe gaps: the full Out in the garden mode, heavy rain as urgent, Welcome back. Ask Stef.
-- **Claude's workspace:** `npm install` is blocked, but React, esbuild, tsx and TypeScript are in `/opt/npm-tools/node_modules`. Symlink them into `node_modules/` to run `npm test` and `npm run build`. There are no React types there, so `.tsx` can't be type-checked; the click-through covers that.
+- **Next:** Stef pushes v1.1 and sets up Supabase; Claude fills in `cloudConfig.ts` and they try it on two phones. Then perhaps "who's doing it" on jobs, or the wireframe gaps: the full Out in the garden mode, heavy rain as urgent, Welcome back. Ask Stef.
+- **Claude's workspace:** `npm install` is blocked, but React, esbuild, tsx, TypeScript and Playwright are in `/opt/npm-tools/node_modules`. Postgres 16 is installed (`/usr/lib/postgresql/16/bin`) for checking `supabase/setup.sql`. Supabase itself can't be reached from the workspace. Symlink them into `node_modules/` to run `npm test` and `npm run build`. There are no React types there, so `.tsx` can't be type-checked; the click-through covers that.
 - **Delivering changes:** with Stef's `Desktop\mary-mary` folder connected, write the changed files straight into it (update the existing files, don't make copies). Stef then Commits and Pushes in GitHub Desktop.
 - The repo is public, which is needed for free GitHub Pages. `.github/workflows` files: on 8 Nov (v0.9) writing `notify.yml` into the folder from the computer's shell worked; earlier, remote tools couldn't write there. Existing files in the folder can't be replaced by tar (no delete permission): overwrite them in place with `cat new > file`.

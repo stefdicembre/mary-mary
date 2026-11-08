@@ -2,11 +2,11 @@
 
 > "Mary, Mary, quite contrary, how does your garden grow?"
 
-A gentle garden companion for Stef's garden. It works as an app on the iPhone home screen, and everything is saved on the phone.
+A gentle garden companion for Stef's garden. It works as an app on the iPhone home screen, and everything is saved on the phone. A garden can also be shared, so Stef and Cath each use it on their own phones.
 
 **Live app:** https://stefdicembre.github.io/mary-mary/
 
-## What it does so far (version 1.0)
+## What it does so far (version 1.1)
 
 - **Home:** a greeting, your garden areas, and any plants that need a look.
 - **Garden areas:** add, edit or remove areas, with which way they face, soil and notes.
@@ -33,9 +33,25 @@ A gentle garden companion for Stef's garden. It works as an app on the iPhone ho
 
 - **Urgent alerts on the lock screen** (new in 0.9): frost tonight (0°C or below), storms (gusts of 55mph or more) and heatwaves (30°C or more), and nothing else. Frost alerts name your tender plants. Turn them on in Settings → Notifications (open the app from its Home Screen icon first). The app makes a private "push code" that you paste into GitHub once, as a secret called `MARY_MARY_PUSH`. GitHub then checks the forecast at about 6am and 3pm every day (an hour later in summer, and GitHub can be up to half an hour late) and sends the alert. Each alert only comes once. If your tender plants or postcode change, Settings asks you to make a new code and paste it over the old one. To send a test: GitHub → Actions → Garden alerts → Run workflow.
 
-- **First-time setup** (new in 1.0): a new phone opens with a few friendly questions, following the wireframe: the garden's name, who's gardening (time and days), where it is (for weather), its areas (from idea chips or your own names), what's growing in each area (by name, or "I'm not sure" with a description), "Not much planted yet?" (which way it faces, room, soil and what matters, then a short list of easy plants to add as planned), and what matters most. Parts that need things Mary Mary doesn't have yet (invites and joining a garden, photo recognition, the phone's compass, everyday nudges and quiet time) are shown greyed out as "Coming soon". If the app is closed part way, it picks up where you left off. Settings → First-time setup has "Try first-time setup" (nothing is saved) and "Start afresh" (offers a backup first; your garden is only replaced when you tap Finish). What matters to you is remembered and pre-ticked on the planting plan.
+- **First-time setup** (new in 1.0): a new phone opens with a few friendly questions, following the wireframe: the garden's name, who's gardening (time and days), where it is (for weather), its areas (from idea chips or your own names), what's growing in each area (by name, or "I'm not sure" with a description), "Not much planted yet?" (which way it faces, room, soil and what matters, then a short list of easy plants to add as planned), and what matters most. Parts that need things Mary Mary doesn't have yet (photo recognition, the phone's compass, everyday nudges and quiet time) are shown greyed out as "Coming soon". If the app is closed part way, it picks up where you left off. Settings → First-time setup has "Try first-time setup" (nothing is saved) and "Start afresh" (offers a backup first; your garden is only replaced when you tap Finish). What matters to you is remembered and pre-ticked on the planting plan.
 
-Possible next steps: the full "Out in the garden" mode, heavy rain as an urgent warning, a Welcome back screen. Going-away mode is parked. Sharing with Cath comes later.
+- **Sharing a garden and invites** (new in 1.1): Settings → Sharing (or the Menu) → "Share this garden" puts the garden online. "Make an invite code" gives a code like ROSE-482193, and "Send the invite" sends it with instructions by Messages, WhatsApp or email. On the other phone, add Mary Mary to the Home Screen, tap "Been invited? Join a garden" and type the code. Each code works once, for a week. After that, both phones see the same areas, plants, jobs, diary (with photos), supplies, harvests, map and settings. Your own name stays on your own phone. It still works with no signal and catches up later. If you both change things before your phones catch up, both sets of changes are kept; only if you both change the very same thing (the same plant's notes, say) does the later one win. Sharing shows who's in (the person who started the garden can remove people), invites waiting to be used, and "Leave this garden" (or "Stop sharing" if you're the only one). Every phone keeps its own copy, so leaving never loses anything. Needs setting up once: see "Sharing a garden: setting it up" below.
+
+Possible next steps: who's doing which job (Stef or Cath), the full "Out in the garden" mode, heavy rain as an urgent warning, a Welcome back screen. Going-away mode is parked.
+
+## Sharing a garden: setting it up (once)
+
+Sharing needs somewhere online for the garden to live. It uses **Supabase**, which is free for a garden this size. Nobody needs an email address or password to use it: each phone signs in quietly, and the invite code is what lets a phone into the garden.
+
+1. Go to **supabase.com** and choose **Start your project**. Sign in with your GitHub account.
+2. **New project.** Name it `mary-mary`, press **Generate a password** (you won't need it again, but keep it somewhere safe), choose the region **London**, and keep the free plan. It takes a minute or two to get ready.
+3. Open **SQL Editor** (in the left-hand bar) → **New query**. Open `supabase/setup.sql` from the mary-mary folder in Notepad, copy all of it, paste it in, and press **Run**. It should say "Success. No rows returned".
+4. Open **Authentication** → **Sign In / Providers**, turn on **Allow anonymous sign-ins**, and press **Save**.
+5. Press the **Connect** button at the top (or open **Project Settings** → **API Keys**) and copy two things: the **Project URL** (it looks like `https://abcdefgh.supabase.co`) and the **Publishable key** (it starts `sb_publishable_`). These are safe to share and to have in the public repo: the rules from step 3 mean they can't open anyone's garden.
+6. Put them in `src/lib/cloudConfig.ts` (or send them to Claude to do it), then Commit and Push.
+7. On your phone: Settings → Sharing → **Share this garden**, then **Make an invite code** and **Send the invite**.
+
+Supabase pauses free projects after a week without visits. Your phones visit whenever the app is open, and GitHub also pops in every three days (`.github/workflows/keep-awake.yml`). If it ever does pause, Supabase emails you, and pressing **Restore** on supabase.com wakes it up. The phones carry on working without it in the meantime.
 
 ## Putting a change live
 
@@ -60,6 +76,7 @@ Possible next steps: the full "Out in the garden" mode, heavy rain as an urgent 
 - All changes to the data go through small pure functions in `src/lib/actions.ts`.
 - `npm install`, then `npm test` (logic tests), `npm run build` (makes `dist/`), and `npm run dev` (preview at http://localhost:5173).
 - `.github/workflows/deploy.yml` tests, builds and publishes to GitHub Pages on every push to `main`.
+- Sharing (v1.1): `supabase/setup.sql` (tables, row level security and the functions the app calls: `create_garden`, `make_invite`, `join_garden`, `leave_garden`, `remove_member`; checked on a real Postgres with a stand-in for Supabase's auth), `src/lib/cloudConfig.ts` (project URL and publishable key; empty means sharing is off), `src/lib/cloud.ts` (Supabase's REST and auth addresses with plain `fetch`, anonymous sign-in and token refresh), `src/lib/share.ts` (what's shared vs kept on the phone: `yourName` and `needsSetup` stay local; `merge3`, a three-way merge by id for lists, by key for objects, and add/remove for lists of words; invite codes and message), `src/lib/sync.ts` (`Syncer`: each round checks the version, takes newer data, or sends local changes with "only if still version N" and merges on a clash; then photos up and down; `bringIn` keeps changes made during a round), `src/sharing.tsx` (keeps the link in the `cloud` IndexedDB extra, never in backups; syncs on open, on coming back to the app, on getting signal, every 30 seconds and 1.2 seconds after a change) and `src/screens/Sharing.tsx` (`#/sharing`, `#/join`, `#/join/done`). The whole garden is one `jsonb` document with a version number that a trigger bumps on every change. Tests in `share.test.ts` run two phones against `src/lib/cloud.fake.ts`, a pretend Supabase that follows the same rules.
 - Urgent alerts: `src/lib/alerts.ts` (the push code, which forecast alerts to send at each check, sending each once; tested in `alerts.test.ts`), `src/lib/push.ts` and `src/screens/Notify.tsx` (the phone side: permission, keys made with WebCrypto, the push code kept in IndexedDB and never in backups). `.github/workflows/notify.yml` runs `scripts/notify.ts` twice a day with the `MARY_MARY_PUSH` secret, and remembers what it sent in the Actions cache. `scripts/webpush.ts` encrypts (RFC 8291) and signs (VAPID) the alert with Node's built-in crypto, so no extra packages; `webpush.test.ts` checks it against the RFC's worked example. The repo is public, so the script never prints the garden's place. GitHub turns off scheduled workflows after 60 days without a push to the repo.
 - `public/sw.js` is the offline service worker, and shows alerts (`push`) and opens the app at the weather when one is tapped. The build stamps a version into it, so each publish replaces the old cache.
 - Icons are drawn by `scripts/make-icons.mjs`, which needs `sharp`. The PNGs are committed, so this only needs running if the icon design changes.

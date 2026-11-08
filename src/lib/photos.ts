@@ -94,6 +94,9 @@ export async function exportPhotos(ids: string[]): Promise<Record<string, string
   return out;
 }
 
+/** Sent on the window when photos arrive (from a backup or the shared garden), so missing ones can look again. */
+export const PHOTOS_ARRIVED = "mary-mary-photos";
+
 export async function importPhotos(photos: Record<string, string>): Promise<void> {
   for (const [id, data] of Object.entries(photos)) {
     if (!/^data:image\//.test(data)) continue;
@@ -101,4 +104,5 @@ export async function importPhotos(photos: Record<string, string>): Promise<void
     await tx("readwrite", (s) => s.put(blob, id));
     urls.delete(id);
   }
+  if (Object.keys(photos).length && typeof window !== "undefined") window.dispatchEvent(new Event(PHOTOS_ARRIVED));
 }

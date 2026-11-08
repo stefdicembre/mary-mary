@@ -206,3 +206,12 @@ export const IconBasket = ({ size = 22, color = "#3B6D11" }: P) => (
     <path d="M8 10l3-6M16 10l-3-6M9 14v2M12 14v2M15 14v2" />
   </svg>
 );
+
+export const IconPeople = ({ size = 22, color = "#3B6D11" }: P) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="9" cy="8" r="3.2" />
+    <path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" />
+    <circle cx="17" cy="9" r="2.5" />
+    <path d="M16 13.6c2.9 0 5 1.9 5 4.9" />
+  </svg>
+);

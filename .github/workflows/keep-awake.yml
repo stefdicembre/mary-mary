@@ -1,0 +1,31 @@
+# Supabase pauses free projects after a week with no visits. This pops in every
+# few days so the shared garden never goes to sleep (v1.1). It does nothing until
+# sharing is switched on in src/lib/cloudConfig.ts.
+name: Keep the shared garden awake
+
+on:
+  schedule:
+    - cron: "40 9 */3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Visit the garden database
+        run: |
+          URL=$(sed -n 's/^export const SUPABASE_URL = "\(.*\)";/\1/p' src/lib/cloudConfig.ts)
+          KEY=$(sed -n 's/^export const SUPABASE_KEY = "\(.*\)";/\1/p' src/lib/cloudConfig.ts)
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "Sharing isn't switched on yet, so there's nothing to keep awake."
+            exit 0
+          fi
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$URL/rest/v1/gardens?select=id&limit=1" -H "apikey: $KEY")
+          echo "The garden database answered: $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::The shared garden didn't answer normally ($code). If Supabase has paused it, open supabase.com and press Restore."
+          fi
