@@ -36,6 +36,26 @@ function writeSent(sent: string[]) {
   writeFileSync(STATE, JSON.stringify(sent));
 }
 
+// The free weather service sometimes turns away GitHub's shared servers for a moment,
+// so try a few times (waiting a bit longer each time) before giving up.
+const WAITS_SECONDS = [5, 15, 30, 60];
+
+async function getForecast(url: string): Promise<Response | undefined> {
+  let last: Response | undefined;
+  for (let attempt = 0; attempt <= WAITS_SECONDS.length; attempt++) {
+    if (attempt > 0) {
+      console.log(`Forecast not available yet. Trying again in ${WAITS_SECONDS[attempt - 1]} seconds (try ${attempt + 1} of ${WAITS_SECONDS.length + 1}).`);
+      await new Promise((r) => setTimeout(r, WAITS_SECONDS[attempt - 1] * 1000));
+    }
+    last = await fetch(url, { signal: AbortSignal.timeout(20_000) }).catch(() => undefined);
+    // Worth another go: no connection, too many requests, or a problem at their end.
+    // Anything else (a bad request, say) won't get better by waiting.
+    if (last && last.ok) return last;
+    if (last && last.status !== 429 && last.status < 500) return last;
+  }
+  return last;
+}
+
 async function main() {
   let code;
   try {
@@ -55,8 +75,8 @@ async function main() {
   if (process.env.TEST === "yes") {
     alerts = [TEST_ALERT];
   } else {
-    const r = await fetch(forecastUrl(code.lat, code.lon)).catch(() => undefined);
-    if (!r || !r.ok) fail(`Couldn't get the forecast (${r ? r.status : "no connection"}). It'll try again at the next check.`);
+    const r = await getForecast(forecastUrl(code.lat, code.lon));
+    if (!r || !r.ok) fail(`Couldn't get the forecast (${r ? r.status : "no connection"}). It tried five times and will try again at the next check.`);
     const forecast = parseForecast(await r.json(), code.place, now);
     alerts = urgentAlerts(forecast, code.protect, today, londonHour(now));
   }
