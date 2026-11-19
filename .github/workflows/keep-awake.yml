@@ -24,8 +24,18 @@ jobs:
             echo "Sharing isn't switched on yet, so there's nothing to keep awake."
             exit 0
           fi
-          code=$(curl -s -o /dev/null -w '%{http_code}' "$URL/rest/v1/gardens?select=id&limit=1" -H "apikey: $KEY")
+          RETRY="--max-time 30 --retry 3 --retry-all-errors --retry-delay 10"
+          # Sign in quietly, the way a phone does, so the visit is a real one.
+          # (A stranger with no sign-in is refused with a 401, which doesn't count.)
+          auth=$(curl -s $RETRY -X POST "$URL/auth/v1/signup" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}') || auth=""
+          TOKEN=$(printf '%s' "$auth" | sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+          if [ -z "$TOKEN" ]; then
+            echo "::error::Couldn't sign in to the shared garden. If Supabase has paused it, open supabase.com and press Restore. Otherwise check Authentication → Sign In / Providers → Allow anonymous sign-ins is on."
+            exit 1
+          fi
+          code=$(curl -s $RETRY -o /dev/null -w '%{http_code}' "$URL/rest/v1/gardens?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $TOKEN") || code="none"
           echo "The garden database answered: $code"
           if [ "$code" != "200" ]; then
-            echo "::warning::The shared garden didn't answer normally ($code). If Supabase has paused it, open supabase.com and press Restore."
+            echo "::error::The shared garden didn't answer normally ($code). If Supabase has paused it, open supabase.com and press Restore."
+            exit 1
           fi
